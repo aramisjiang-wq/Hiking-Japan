@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>日本十大经典徒步路线地图</title>
+  <!-- 引入Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <!-- 引入Leaflet地图库 -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <!-- 引入Noto Sans JP字体 - 日式风格 -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Serif+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- 配置Tailwind自定义颜色和字体 - 日式侘寂风格 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            // 日式侘寂风格配色
+            primary: '#8B7355', // 枯山水砂石色 - 主色调
+            secondary: '#A8B5A0', // 苔绿色 - 辅助色
+            accent: '#C5705D', // 锈红色 - 强调色
+            light: '#F5F2E8', // 和纸米白色 - 背景色
+            dark: '#4A4A4A', // 墨灰色 - 深色文字
+            // 和风传统色彩
+            'wabi-beige': '#D4C5A0', // 侘寂米色
+            'sabi-gray': '#8A8A8A', // 寂灰
+            'matcha-green': '#A8B5A0', // 抹茶绿
+            'sakura-pink': '#F4C2C2', // 樱花粉（点缀用）
+            'ink-black': '#2C2C2C', // 墨黑色
+            'rice-paper': '#F9F7F1', // 和纸色
+          },
+          fontFamily: {
+            sans: ['Noto Sans JP', 'Noto Sans SC', 'sans-serif'],
+            japanese: ['Noto Serif JP', 'serif'],
+          },
+          borderRadius: {
+            'wabi': '3px', // 侘寂风格小圆角
+            'sabi': '1px', // 寂风格微圆角
+          }
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      /* 日式风格全局样式 */
+      body {
+        font-family: 'Noto Sans JP', 'Noto Sans SC', sans-serif;
+        background: linear-gradient(135deg, #F5F2E8 0%, #F9F7F1 100%);
+      }
+      .map-container {
+        height: 80vh;
+        min-height: 800px;
+        position: relative;
+        background-color: #F5F2E8;
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+        border-radius: 3px; /* 侘寂风格小圆角 */
+        box-shadow: 0 8px 32px rgba(139, 115, 85, 0.15); /* 柔和的阴影 */
+      }
+      @media (max-width: 1200px) {
+        .map-container {
+          height: 75vh;
+          min-height: 700px;
+          max-width: 95%;
+        }
+      }
+      @media (max-width: 768px) {
+        .map-container {
+          height: 70vh;
+          min-height: 500px;
+          max-width: 100%;
+        }
+      }
+      @media (max-width: 480px) {
+        .map-container {
+          height: 65vh;
+          min-height: 400px;
+        }
+      }
+      /* 日式地图标记样式 */
+      .route-label {
+        font-family: 'Noto Sans JP', sans-serif;
+        font-size: 11px;
+        font-weight: 400;
+        padding: 3px 6px;
+        border-radius: 1px; /* 寂风格微圆角 */
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        letter-spacing: 0.5px;
+      }
+      /* 日式地图加载指示器 */
+      .map-loading {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+        text-align: center;
+        background: rgba(245, 242, 232, 0.95);
+        padding: 24px;
+        border-radius: 3px;
+        box-shadow: 0 4px 16px rgba(139, 115, 85, 0.2);
+        border: 1px solid rgba(139, 115, 85, 0.1);
+      }
+      .map-error {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+        text-align: center;
+        background: rgba(245, 242, 232, 0.98);
+        padding: 24px;
+        border-radius: 3px;
+        box-shadow: 0 4px 16px rgba(139, 115, 85, 0.2);
+        color: #C5705D;
+        border: 1px solid rgba(197, 112, 93, 0.2);
+      }
+      /* 移动端优化 */
+      @media (max-width: 640px) {
+        .map-loading, .map-error {
+          padding: 18px;
+          font-size: 14px;
+        }
+      }
+      /* 确保地图容器正确渲染 */
+      #map {
+        position: relative;
+        overflow: hidden;
+        border-radius: 3px;
+      }
+      .leaflet-container {
+        height: 100%;
+        width: 100%;
+      }
+      /* 日式自定义弹出窗口样式 */
+      .custom-popup .leaflet-popup-content-wrapper {
+        border-radius: 3px;
+        box-shadow: 0 8px 24px rgba(139, 115, 85, 0.2);
+        background: rgba(249, 247, 241, 0.98);
+        border: 1px solid rgba(139, 115, 85, 0.1);
+      }
+      .custom-popup .leaflet-popup-content {
+        margin: 0;
+        padding: 0;
+      }
+      .custom-popup .leaflet-popup-tip {
+        box-shadow: 0 2px 8px rgba(139, 115, 85, 0.15);
+      }
+      /* 和风按钮样式 */
+      .japanese-button {
+        font-family: 'Noto Sans JP', sans-serif;
+        font-weight: 400;
+        letter-spacing: 0.5px;
+        border-radius: 3px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(139, 115, 85, 0.1);
+      }
+      .japanese-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 16px rgba(139, 115, 85, 0.2);
+      }
+      /* 日式卡片样式 */
+      .japanese-card {
+        background: rgba(249, 247, 241, 0.8);
+        border-radius: 3px;
+        box-shadow: 0 4px 16px rgba(139, 115, 85, 0.1);
+        border: 1px solid rgba(139, 115, 85, 0.05);
+        backdrop-filter: blur(8px);
+      }
+    }
+  </style>
+</head>
+<body class="bg-light text-gray-800">
+  <!-- 页面头部 - 日式风格 -->
+  <header class="bg-gradient-to-r from-primary via-wabi-beige to-secondary text-ink-black shadow-lg border-b border-wabi-beige/30">
+    <div class="container mx-auto px-4 py-8">
+      <h1 class="text-[clamp(1.8rem,4vw,3rem)] font-japanese font-bold flex items-center tracking-wide">
+        <i class="fa fa-mountain mr-4 text-accent"></i>
+        <span class="bg-gradient-to-r from-ink-black to-primary bg-clip-text text-transparent">
+          日本の山道
+        </span>
+      </h1>
+      <p class="mt-3 text-lg opacity-80 font-light tracking-wider">自然と文化の調和、心の旅へ</p>
+      <div class="mt-4 flex items-center space-x-4 text-sm opacity-70">
+        <span class="flex items-center"><i class="fa fa-leaf mr-2 text-matcha-green"></i>四季折々</span>
+        <span class="flex items-center"><i class="fa fa-torii-gate mr-2 text-accent"></i>神社仏閣</span>
+        <span class="flex items-center"><i class="fa fa-water mr-2 text-secondary"></i>渓谷温泉</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主要内容区 -->
+  <main class="container mx-auto px-4 py-6" style="max-width: 1600px;"> <!-- 增加主容器最大宽度 -->
+    <!-- 控制栏 - 日式风格 -->
+    <div class="flex flex-wrap justify-between items-center mb-8 gap-6">
+      <div class="flex items-center space-x-3">
+        <button id="zoomIn" class="japanese-button bg-rice-paper border border-primary/20 text-primary hover:bg-primary hover:text-rice-paper px-5 py-2.5 flex items-center text-sm">
+          <i class="fa fa-search-plus mr-2"></i> 拡大
+        </button>
+        <button id="zoomOut" class="japanese-button bg-rice-paper border border-primary/20 text-primary hover:bg-primary hover:text-rice-paper px-5 py-2.5 flex items-center text-sm">
+          <i class="fa fa-search-minus mr-2"></i> 縮小
+        </button>
+        <button id="resetView" class="japanese-button bg-rice-paper border border-primary/20 text-primary hover:bg-primary hover:text-rice-paper px-5 py-2.5 flex items-center text-sm">
+          <i class="fa fa-home mr-2"></i> 初期表示
+        </button>
+      </div>
+      
+      <div class="flex flex-wrap gap-4">
+        <span class="inline-flex items-center px-4 py-2 japanese-card text-sm">
+          <span class="w-3 h-3 rounded-full bg-matcha-green mr-3"></span>初心者 (★☆☆)
+        </span>
+        <span class="inline-flex items-center px-4 py-2 japanese-card text-sm">
+          <span class="w-3 h-3 rounded-full bg-accent mr-3"></span>中級者 (★★☆)
+        </span>
+        <span class="inline-flex items-center px-4 py-2 japanese-card text-sm">
+          <span class="w-3 h-3 rounded-full bg-sabi-gray mr-3"></span>上級者 (★★★)
+        </span>
+      </div>
+    </div>
+    
+    <!-- 地图容器 -->
+    <div id="map" class="w-full map-container rounded-lg shadow-lg border border-gray-200">
+      <!-- 地图加载指示器 -->
+      <div id="mapLoading" class="map-loading">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+        <p class="text-sm text-gray-600">地图加载中...</p>
+      </div>
+      <!-- 地图错误提示 -->
+      <div id="mapError" class="map-error" style="display: none;">
+        <i class="fa fa-exclamation-triangle text-2xl mb-2"></i>
+        <p class="font-semibold">地图加载失败</p>
+        <p class="text-sm mt-1">请检查网络连接或稍后重试</p>
+        <button id="retryMap" class="mt-3 px-4 py-2 bg-primary text-white rounded hover:bg-dark transition">
+          重新加载地图
+        </button>
+      </div>
+    </div>
+    
+    <!-- 路线列表 - 日式风格 -->
+    <div class="mt-12 japanese-card p-6">
+      <h2 class="text-2xl font-japanese font-medium mb-6 text-primary border-b border-primary/20 pb-4">
+        <i class="fa fa-list-ul mr-3 text-accent"></i>山道一覧
+      </h2>
+      
+      <!-- 分类筛选器 -->
+      <div class="mb-8 p-4 bg-rice-paper/50 rounded border border-primary/10">
+        <h3 class="text-lg font-medium text-primary mb-4 flex items-center">
+          <i class="fa fa-filter mr-2 text-accent"></i>絞り込み条件
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm text-primary mb-2">地域</label>
+            <select id="regionFilter" class="w-full px-3 py-2 bg-rice-paper border border-primary/20 rounded text-sm focus:outline-none focus:border-accent">
+              <option value="">すべての地域</option>
+              <option value="hokkaido">北海道地区</option>
+              <option value="tohoku">东北地区</option>
+              <option value="kanto">关东地区</option>
+              <option value="chubu">中部地区</option>
+              <option value="kinki">近畿地区</option>
+              <option value="chugoku">中国地区</option>
+              <option value="shikoku">四国地区</option>
+              <option value="kyushu">九州地区</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm text-primary mb-2">難易度</label>
+            <select id="difficultyFilter" class="w-full px-3 py-2 bg-rice-paper border border-primary/20 rounded text-sm focus:outline-none focus:border-accent">
+              <option value="">すべての難易度</option>
+              <option value="easy">初心者 (★☆☆)</option>
+              <option value="medium">中級者 (★★☆)</option>
+              <option value="hard">上級者 (★★★)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm text-primary mb-2">季節</label>
+            <select id="seasonFilter" class="w-full px-3 py-2 bg-rice-paper border border-primary/20 rounded text-sm focus:outline-none focus:border-accent">
+              <option value="">すべての季節</option>
+              <option value="spring">春 (3-5月)</option>
+              <option value="summer">夏 (6-8月)</option>
+              <option value="autumn">秋 (9-11月)</option>
+              <option value="winter">冬 (12-2月)</option>
+            </select>
+          </div>
+        </div>
+        <div class="mt-4 flex gap-3">
+          <button id="applyFilter" class="japanese-button bg-accent text-white px-6 py-2 text-sm hover:bg-accent/90">
+            <i class="fa fa-search mr-2"></i>検索
+          </button>
+          <button id="clearFilter" class="japanese-button bg-sabi-gray text-white px-6 py-2 text-sm hover:bg-sabi-gray/90">
+            <i class="fa fa-refresh mr-2"></i>クリア
+          </button>
+        </div>
+      </div>
+      
+      <div id="routeGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- 路线项将通过JS动态生成 -->
+      </div>
+      
+      <div id="noResults" class="hidden text-center py-12">
+        <i class="fa fa-search text-4xl text-sabi-gray mb-4"></i>
+        <p class="text-lg text-primary">条件に合う山道が見つかりませんでした</p>
+        <p class="text-sm text-sabi-gray mt-2">検索条件を変更してみてください</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- 页脚 - 日式风格 -->
+  <footer class="bg-gradient-to-r from-ink-black via-primary to-sabi-gray text-rice-paper mt-16 py-8">
+    <div class="container mx-auto px-4 text-center">
+      <div class="mb-4">
+        <i class="fas fa-torii-gate text-2xl text-accent mb-2"></i>
+        <p class="text-lg font-japanese tracking-wide">自然と共に、心の旅を</p>
+      </div>
+      <p class="text-sm opacity-80 mb-2">© 2023 日本の山道ガイド | データは参考値です、出発前に最新情報をご確認ください</p>
+      <div class="flex justify-center space-x-6 mt-4 text-sm">
+        <span class="flex items-center"><i class="fa fa-exclamation-triangle mr-2 text-accent"></i>安全第一</span>
+        <span class="flex items-center"><i class="fa fa-leaf mr-2 text-matcha-green"></i>自然保護</span>
+        <span class="flex items-center"><i class="fa fa-heart mr-2 text-sakura-pink"></i>感謝の心</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // 地图配置
+    const mapConfig = {
+      center: [36.2048, 138.2529],
+      zoom: 5,
+      tileLayers: [
+        {
+          url: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles style by <a href="https://www.hotosm.org/" target="_blank">Humanitarian OpenStreetMap Team</a> hosted by <a href="https://openstreetmap.fr/" target="_blank">OpenStreetMap France</a>'
+        },
+        {
+          url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        },
+        {
+          url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+          attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community'
+        }
+      ]
+    };
+
+    // 徒步路线数据 - 增强版
+    const hikingRoutes = [
+      {
+        id: 1,
+        name: "屋久岛绳文杉步道",
+        nameJa: "屋久島縄文杉コース",
+        location: "鹿儿岛县",
+        region: "九州地区",
+        regionCode: "kyushu",
+        coordinates: [30.394, 130.538],
+        keywords: "宫崎骏森林、千年巨树、绿光秘境",
+        keywordsJa: "ジブリの森、千年の巨樹、緑の秘境",
+        difficulty: "★★☆",
+        difficultyLevel: "medium",
+        duration: "4-6小时",
+        durationCode: "half-day",
+        distance: "8km",
+        season: "4-5月（新绿）、10-11月（红叶）",
+        seasonCode: "spring-autumn",
+        seasonCodes: ["spring", "autumn"],
+        elevation: "1200m",
+        features: ["ancient-trees", "world-heritage", "unique-landscape"],
+        description: "单程4-6小时，部分湿滑路段需小心，可观赏3000年以上树龄的绳文杉。"
+      },
+      {
+        id: 2,
+        name: "熊野古道",
+        nameJa: "熊野古道",
+        location: "和歌山/三重县",
+        region: "本州-近畿地方",
+        regionCode: "kinki",
+        coordinates: [33.731, 135.983],
+        keywords: "世界遗产、神宫巡礼、山海禅意",
+        keywordsJa: "世界遺産、神宮巡礼、山海の禅意",
+        difficulty: "★★☆",
+        difficultyLevel: "medium",
+        duration: "10-15km/日",
+        durationCode: "full-day",
+        distance: "10-15km",
+        season: "春秋最佳（4-5月新绿，11月红叶）",
+        seasonCode: "spring-autumn",
+        seasonCodes: ["spring", "autumn"],
+        elevation: "200-800m",
+        features: ["world-heritage", "pilgrimage", "cultural-landscape"],
+        description: "单日10-15km，平路为主，横跨和歌山、三重、奈良三县，全长1000km以上。"
+      },
+      {
+        id: 3,
+        name: "表银座纵走",
+        nameJa: "表銀座縦走",
+        location: "新潟县",
+        region: "本州-中部地方",
+        regionCode: "chubu",
+        coordinates: [37.050, 138.778],
+        keywords: "雪国秘境、雪墙盛宴、治愈温泉",
+        keywordsJa: "雪国の秘境、雪の壁、癒しの温泉",
+        difficulty: "★★☆",
+        difficultyLevel: "medium",
+        duration: "6-8小时",
+        durationCode: "full-day",
+        distance: "12km",
+        season: "12-3月（雪墙季）、6-9月（避暑花海）",
+        seasonCode: "winter-summer",
+        seasonCodes: ["winter", "summer"],
+        elevation: "1800m",
+        features: ["snow-wall", "alpine-scenery", "hot-spring"],
+        description: "全程12km，雪季需冰爪，终点有温泉，体验日本雪国风情。"
+      },
+      {
+        id: 4,
+        name: "中山道",
+        nameJa: "中山道",
+        location: "岐阜/长野县",
+        region: "本州-中部地方",
+        regionCode: "chubu",
+        coordinates: [35.941, 137.940],
+        keywords: "江户古驿道、宿场町时光机、茶屋烟火气",
+        keywordsJa: "江戸の古い宿場町、茶屋の情緒",
+        difficulty: "★☆☆",
+        difficultyLevel: "easy",
+        duration: "3-6小时",
+        durationCode: "half-day",
+        distance: "5-10km",
+        season: "4-5月（新绿）、10-11月（红叶染町屋）",
+        seasonCode: "spring-autumn",
+        seasonCodes: ["spring", "autumn"],
+        elevation: "200-600m",
+        features: ["historical-route", "post-town", "cultural-heritage"],
+        description: "单日5-10km，平路为主，岐阜马笼宿与长野妻笼宿保存最完好。"
+      },
+      {
+        id: 5,
+        name: "上高地",
+        nameJa: "上高地",
+        location: "长野县",
+        region: "本州-中部地方",
+        regionCode: "chubu",
+        coordinates: [36.617, 137.567],
+        keywords: "北阿尔卑斯之心、河童故乡、瀑布秘境",
+        keywordsJa: "北アルプスの心臓、河童の里、滝の秘境",
+        difficulty: "★★☆",
+        difficultyLevel: "medium",
+        duration: "4-6小时",
+        durationCode: "half-day",
+        distance: "8-10km",
+        season: "6-10月（夏季避暑，秋季红叶）",
+        seasonCode: "summer-autumn",
+        seasonCodes: ["summer", "autumn"],
+        elevation: "1500m",
+        features: ["alpine-valley", "river-scenery", "wildlife"],
+        description: "单日8-10km，缓坡为主，海拔约1500米，被穗高连峰环绕。"
+      },
+      {
+        id: 6,
+        name: "四国八十八所巡礼",
+        nameJa: "四国八十八ヶ所巡礼",
+        location: "德岛/香川/爱媛/高知",
+        region: "四国地区",
+        regionCode: "shikoku",
+        coordinates: [33.841, 133.050],
+        keywords: "佛教千年信仰、御朱印收集、山野治愈",
+        keywordsJa: "仏教千年の信仰、御朱印集め、山の癒し",
+        difficulty: "★★★",
+        difficultyLevel: "hard",
+        duration: "多日行程",
+        durationCode: "multi-day",
+        distance: "1200km",
+        season: "4-5月（樱花灵场）、10-11月（红叶灵场）",
+        seasonCode: "spring-autumn",
+        seasonCodes: ["spring", "autumn"],
+        elevation: "100-1000m",
+        features: ["pilgrimage", "temples", "cultural-experience"],
+        description: "全程1200km，分段走单日10-20km，分布于四国四县的佛教圣地巡礼。"
+      },
+      {
+        id: 7,
+        name: "祖谷溪溪谷步道",
+        nameJa: "祖谷渓渓谷コース",
+        location: "德岛县",
+        region: "四国地区",
+        regionCode: "shikoku",
+        coordinates: [33.900, 134.267],
+        keywords: "日本小瑞士、悬空吊桥、刀削溪谷",
+        keywordsJa: "日本の小瑞士、かずら橋、渓谷の絶景",
+        difficulty: "★★☆",
+        difficultyLevel: "medium",
+        duration: "3-4小时",
+        durationCode: "half-day",
+        distance: "6km",
+        season: "全年（夏季凉爽，秋季红叶染峡谷）",
+        seasonCode: "all-season",
+        seasonCodes: ["spring", "summer", "autumn", "winter"],
+        elevation: "200-400m",
+        features: ["valley-scenery", "suspension-bridge", "autumn-leaves"],
+        description: "单日3-4小时，部分吊桥需小心，有著名的藤蔓桥和壮丽溪谷景观。"
+      },
+      {
+        id: 8,
+        name: "烧岳",
+        nameJa: "焼岳",
+        location: "长野/岐阜县",
+        region: "本州-中部地方",
+        regionCode: "chubu",
+        coordinates: [36.150, 137.517],
+        keywords: "火山口秘境、翡翠湖泊、双峰挑战",
+        keywordsJa: "火山口の秘境、翡翠の湖、双峰の挑戦",
+        difficulty: "★★★",
+        difficultyLevel: "hard",
+        duration: "8-10小时",
+        durationCode: "full-day",
+        distance: "12km",
+        season: "7-9月（仅夏季开放）",
+        seasonCode: "summer",
+        seasonCodes: ["summer"],
+        elevation: "2455m",
+        features: ["volcano", "alpine-lakes", "summit-climb"],
+        description: "单日8-10小时，双峰连穿，海拔2455米，日本百名山之一。"
+      },
+      {
+        id: 9,
+        name: "知床五湖生态步道",
+        nameJa: "知床五湖エココース",
+        location: "北海道",
+        region: "北海道地区",
+        regionCode: "hokkaido",
+        coordinates: [44.033, 144.567],
+        keywords: "世界自然遗产、原始森林、虾夷鹿偶遇",
+        keywordsJa: "世界自然遺産、原始林、エゾ鹿との遭遇",
+        difficulty: "★★☆",
+        difficultyLevel: "medium",
+        duration: "4-5小时",
+        durationCode: "half-day",
+        distance: "8km",
+        season: "6-8月（避暑看绿）、9-10月（红叶+鹿群活跃）",
+        seasonCode: "summer-autumn",
+        seasonCodes: ["summer", "autumn"],
+        elevation: "100m",
+        features: ["world-heritage", "wildlife", "lake-scenery"],
+        description: "单日4-5小时，缓坡为主，原始生态环境，有机会偶遇野生动物。"
+      },
+      {
+        id: 10,
+        name: "富士山五合目→十合目",
+        nameJa: "富士山五合目から十合目",
+        location: "静冈/山梨",
+        region: "本州-近畿地方",
+        regionCode: "kinki",
+        coordinates: [35.361, 138.727],
+        keywords: "日本象征、云海日出、火山岩挑战",
+        keywordsJa: "日本の象徴、雲海の日出、火山岩の挑戦",
+        difficulty: "★☆☆",
+        difficultyLevel: "easy",
+        duration: "5-6小时",
+        durationCode: "half-day",
+        distance: "10km",
+        season: "7-8月登山季",
+        seasonCode: "summer",
+        seasonCodes: ["summer"],
+        elevation: "3776m",
+        features: ["iconic-mountain", "sunrise", "volcanic-landscape"],
+        description: "5-6小时登顶，新手友好，有四条路线可选，可观赏云海和日出。"
+      }
+    ];
+
+    // 等待页面加载完成后初始化地图
+    document.addEventListener('DOMContentLoaded', function() {
+      initializeMap();
+    });
+
+    // 初始化地图函数
+    function initializeMap() {
+      try {
+        // 确保地图容器存在且可见
+        const mapContainer = document.getElementById('map');
+        if (!mapContainer) {
+          throw new Error('地图容器不存在');
+        }
+
+        // 确保地图容器有明确的尺寸
+        if (mapContainer.offsetHeight === 0) {
+          mapContainer.style.height = '600px';
+          mapContainer.style.minHeight = '600px';
+        }
+
+        // 隐藏错误提示，显示加载指示器
+        document.getElementById('mapError').style.display = 'none';
+        document.getElementById('mapLoading').style.display = 'block';
+
+        // 延迟初始化以确保DOM完全渲染
+        setTimeout(() => {
+          try {
+            // 创建地图实例 - 修复交互功能
+            const map = L.map('map', {
+              center: mapConfig.center,
+              zoom: mapConfig.zoom,
+              zoomControl: true,
+              attributionControl: true,
+              // 启用所有交互功能
+              dragging: true,
+              touchZoom: true,
+              doubleClickZoom: true,
+              scrollWheelZoom: true,
+              boxZoom: true,
+              keyboard: true,
+              // 移动端优化设置
+              tap: true,
+              tapTolerance: 10,
+              trackResize: true,
+              // 性能优化
+              fadeAnimation: true,
+              zoomAnimation: true,
+              markerZoomAnimation: true,
+              // 扩大后的地图优化
+              wheelPxPerZoomLevel: 100,
+              zoomSnap: 0.5,
+              zoomDelta: 0.5,
+              // 确保地图可以交互
+              closePopupOnClick: true,
+              zoomControl: true
+            });
+
+            // 强制启用交互功能
+            map.dragging.enable();
+            map.touchZoom.enable();
+            map.doubleClickZoom.enable();
+            map.scrollWheelZoom.enable();
+            map.boxZoom.enable();
+            map.keyboard.enable();
+
+            // 尝试加载多个图层源
+            loadTileLayer(map, 0);
+
+          } catch (error) {
+            console.error('地图初始化失败:', error);
+            showMapError('地图初始化失败，请稍后重试');
+          }
+        }, 300); // 增加延迟时间确保DOM完全加载
+
+      } catch (error) {
+        console.error('地图初始化错误:', error);
+        showMapError('地图初始化错误: ' + error.message);
+      }
+    }
+
+    // 加载图层函数
+    function loadTileLayer(map, layerIndex) {
+      if (layerIndex >= mapConfig.tileLayers.length) {
+        showMapError('所有地图图层都无法加载，请检查网络连接');
+        return;
+      }
+
+      const layerConfig = mapConfig.tileLayers[layerIndex];
+      
+      const tileLayer = L.tileLayer(layerConfig.url, {
+        maxZoom: 19,
+        attribution: layerConfig.attribution,
+        errorTileUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzljYTNhZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuWbvueJhzwvdGV4dD48L3N2Zz4='
+      });
+
+      // 监听图层加载事件
+      tileLayer.on('tileloadstart', function() {
+        document.getElementById('mapLoading').style.display = 'block';
+      });
+
+      tileLayer.on('load', function() {
+        document.getElementById('mapLoading').style.display = 'none';
+      });
+
+      tileLayer.on('tileerror', function() {
+        console.warn(`图层 ${layerIndex + 1} 加载失败，尝试下一个图层`);
+        map.removeLayer(tileLayer);
+        loadTileLayer(map, layerIndex + 1);
+      });
+
+      // 尝试添加到地图
+      tileLayer.addTo(map);
+
+      // 延迟检查图层是否成功加载
+      setTimeout(() => {
+        if (map.hasLayer(tileLayer)) {
+          // 图层加载成功，继续初始化其他功能
+          console.log(`图层 ${layerIndex + 1} 加载成功`);
+          initializeMapFeatures(map);
+          
+          // 确保地图交互功能正常
+          setTimeout(() => {
+            map.invalidateSize();
+            map.dragging.enable();
+            console.log('地图交互功能已启用');
+          }, 500);
+        } else {
+          // 图层加载失败，尝试下一个
+          console.warn(`图层 ${layerIndex + 1} 加载失败，尝试下一个`);
+          loadTileLayer(map, layerIndex + 1);
+        }
+      }, 2000);
+    }
+
+    // 显示地图错误
+    function showMapError(message) {
+      document.getElementById('mapLoading').style.display = 'none';
+      document.getElementById('mapError').style.display = 'block';
+      document.getElementById('mapError').querySelector('p.font-semibold').textContent = message;
+    }
+
+    // 初始化地图功能
+    function initializeMapFeatures(map) {
+
+      // 定义不同难度的样式
+      const difficultyStyles = {
+        easy: {
+          color: 'green',
+          bgColor: 'rgba(72, 187, 120, 0.8)',
+          textColor: 'white'
+        },
+        medium: {
+          color: 'orange',
+          bgColor: 'rgba(249, 115, 22, 0.8)',
+          textColor: 'white'
+        },
+        hard: {
+          color: 'red',
+          bgColor: 'rgba(239, 68, 68, 0.8)',
+          textColor: 'white'
+        }
+      };
+
+      // 为每个路线添加标记和名称标签
+      hikingRoutes.forEach(route => {
+        const style = difficultyStyles[route.difficultyLevel];
+        
+        // 创建带名称的自定义图标（扩大版）
+        const customIcon = L.divIcon({
+          className: 'custom-map-marker',
+          html: `
+            <div style="display: flex; flex-direction: column; align-items: center;">
+              <div style="background-color: ${style.color}; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 0 3px ${style.color}; cursor: pointer;"></div>
+              <div class="route-label" style="background-color: ${style.bgColor}; color: ${style.textColor}; margin-top: 8px; padding: 4px 8px; font-size: 14px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">${route.name}</div>
+            </div>
+          `,
+          iconSize: [160, 60], // 扩大图标尺寸
+          iconAnchor: [80, 30] // 调整锚点位置
+        });
+
+        // 创建标记并添加到地图
+        const marker = L.marker(route.coordinates, { 
+          icon: customIcon,
+          title: route.name // 鼠标悬停时显示名称
+        }).addTo(map);
+        
+        // 创建弹出窗口内容（扩大版）
+        const popupContent = `
+          <div class="p-4" style="min-width: 350px;">
+            <h3 class="font-bold text-primary text-xl mb-3">${route.name}</h3>
+            <div class="space-y-2 text-base">
+              <p><strong class="text-gray-700">地区：</strong>${route.region}（${route.location}）</p>
+              <p><strong class="text-gray-700">关键词：</strong>${route.keywords}</p>
+              <p><strong class="text-gray-700">难度：</strong><span style="color: ${style.color}; font-weight: bold;">${route.difficulty}</span></p>
+              <p><strong class="text-gray-700">最佳季节：</strong>${route.season}</p>
+              <p class="mt-3 text-gray-800 leading-relaxed">${route.description}</p>
+            </div>
+          </div>
+        `;
+        
+        // 绑定弹出窗口到标记
+        marker.bindPopup(popupContent, { 
+          maxWidth: 400, // 增加最大宽度
+          className: 'custom-popup' // 添加自定义样式类
+        });
+        
+        // 点击标记时高亮对应列表项
+        marker.on('click', function() {
+          document.querySelectorAll('.route-item').forEach(item => {
+            item.classList.remove('ring-2', 'ring-primary');
+          });
+          const listItem = document.getElementById(`route-${route.id}`);
+          if (listItem) {
+            listItem.classList.add('ring-2', 'ring-primary');
+            listItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        });
+      });
+
+      // 生成路线列表
+      const routesContainer = document.querySelector('.grid');
+      hikingRoutes.forEach(route => {
+        const style = difficultyStyles[route.difficultyLevel];
+        const routeItem = document.createElement('div');
+        routeItem.id = `route-${route.id}`;
+        routeItem.className = 'route-item bg-light rounded p-3 border border-gray-200 hover:shadow-md transition cursor-pointer';
+        routeItem.innerHTML = `
+          <h3 class="font-semibold text-primary">${route.name}</h3>
+          <p class="text-sm text-gray-600">${route.region}（${route.location}）</p>
+          <p class="text-xs text-gray-500 mt-1">${route.keywords}</p>
+          <div class="flex justify-between items-center mt-2">
+            <span class="text-xs px-2 py-1 rounded" style="background-color: ${style.bgColor}; color: ${style.textColor}">
+              ${route.difficulty}
+            </span>
+            <span class="text-xs text-gray-500">${route.season}</span>
+          </div>
+        `;
+        
+        // 点击列表项时定位到地图对应位置
+        routeItem.addEventListener('click', () => {
+          map.setView(route.coordinates, 10);
+          setTimeout(() => {
+            // 触发标记点击事件
+            map.eachLayer(layer => {
+              if (layer instanceof L.Marker && 
+                  layer.getLatLng().lat.toFixed(3) === route.coordinates[0].toFixed(3) && 
+                  layer.getLatLng().lng.toFixed(3) === route.coordinates[1].toFixed(3)) {
+                layer.openPopup();
+              }
+            });
+          }, 500);
+        });
+        
+        routesContainer.appendChild(routeItem);
+      });
+
+      // 地图控制按钮功能
+      document.getElementById('zoomIn').addEventListener('click', () => {
+        map.zoomIn();
+      });
+      
+      document.getElementById('zoomOut').addEventListener('click', () => {
+        map.zoomOut();
+      });
+      
+      document.getElementById('resetView').addEventListener('click', () => {
+        map.setView([36.2048, 138.2529], 5);
+      });
+
+      // 响应式调整
+      window.addEventListener('resize', () => {
+        map.invalidateSize();
+      });
+    }
+
+    // 重新加载地图按钮事件
+    document.getElementById('retryMap').addEventListener('click', function() {
+      initializeMap();
+    });
+
+    // 筛选功能
+    let filteredRoutes = [...hikingRoutes];
+    let markers = [];
+
+    function applyFilters() {
+      const regionFilter = document.getElementById('regionFilter').value;
+      const difficultyFilter = document.getElementById('difficultyFilter').value;
+      const seasonFilter = document.getElementById('seasonFilter').value;
+
+      filteredRoutes = hikingRoutes.filter(route => {
+        // 地区筛选
+        if (regionFilter && route.regionCode !== regionFilter) {
+          return false;
+        }
+        
+        // 难度筛选
+        if (difficultyFilter && route.difficultyLevel !== difficultyFilter) {
+          return false;
+        }
+        
+        // 季节筛选
+        if (seasonFilter && !route.seasonCodes.includes(seasonFilter)) {
+          return false;
+        }
+        
+        return true;
+      });
+
+      renderRouteGrid();
+      updateRouteMarkers();
+      updateFilterCount();
+    }
+
+    function clearFilters() {
+      document.getElementById('regionFilter').value = '';
+      document.getElementById('difficultyFilter').value = '';
+      document.getElementById('seasonFilter').value = '';
+      
+      filteredRoutes = [...hikingRoutes];
+      renderRouteGrid();
+      updateRouteMarkers();
+      updateFilterCount();
+    }
+
+    function updateFilterCount() {
+      const filteredCount = document.getElementById('filtered-count');
+      const totalCount = document.getElementById('total-count');
+      if (filteredCount && totalCount) {
+        filteredCount.textContent = filteredRoutes.length;
+        totalCount.textContent = hikingRoutes.length;
+      }
+    }
+
+    function renderRouteGrid() {
+      const routeGrid = document.getElementById('routeGrid');
+      const noResults = document.getElementById('noResults');
+      
+      if (!routeGrid) return;
+      
+      if (filteredRoutes.length === 0) {
+        routeGrid.innerHTML = '';
+        if (noResults) noResults.classList.remove('hidden');
+        return;
+      }
+      
+      if (noResults) noResults.classList.add('hidden');
+      
+      routeGrid.innerHTML = filteredRoutes.map(route => `
+        <div class="japanese-card p-5 hover:shadow-lg transition-all duration-300 cursor-pointer border border-primary/10 hover:border-accent/50" 
+             onclick="focusOnRoute(${route.id})" data-route-id="${route.id}">
+          <div class="flex justify-between items-start mb-3">
+            <h3 class="font-japanese font-medium text-primary text-base leading-tight">${route.name}</h3>
+            <span class="text-xs px-2 py-1 rounded-full ${getDifficultyColorClass(route.difficultyLevel)} text-white">${route.difficulty}</span>
+          </div>
+          <p class="text-sm text-sabi-gray mb-2"><i class="fa fa-map-marker-alt mr-2 text-accent"></i>${route.location}</p>
+          <p class="text-xs text-primary/70 mb-3">${route.keywords}</p>
+          <div class="flex justify-between items-center text-xs text-sabi-gray">
+            <span><i class="fa fa-clock mr-1"></i>${route.duration}</span>
+            <span><i class="fa fa-calendar mr-1"></i>${route.season}</span>
+          </div>
+          <div class="mt-3 pt-3 border-t border-primary/10">
+            <p class="text-xs text-primary/80 leading-relaxed">${route.description}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function getDifficultyColorClass(level) {
+      switch(level) {
+        case 'easy': return 'bg-matcha-green';
+        case 'medium': return 'bg-accent';
+        case 'hard': return 'bg-sabi-gray';
+        default: return 'bg-primary';
+      }
+    }
+
+    function focusOnRoute(routeId) {
+      const route = filteredRoutes.find(r => r.id === routeId);
+      if (route && window.map) {
+        window.map.setView(route.coordinates, 10);
+        
+        // 高亮对应的标记
+        if (window.markers) {
+          window.markers.forEach(marker => {
+            if (marker.routeId === routeId) {
+              marker.openPopup();
+            }
+          });
+        }
+      }
+    }
+
+    function updateRouteMarkers() {
+      if (!window.map) return;
+      
+      // 清除现有标记
+      if (window.markers) {
+        window.markers.forEach(marker => window.map.removeLayer(marker));
+      }
+      window.markers = [];
+      
+      // 定义不同难度的样式
+      const difficultyStyles = {
+        easy: {
+          color: 'green',
+          bgColor: 'rgba(72, 187, 120, 0.8)',
+          textColor: 'white'
+        },
+        medium: {
+          color: 'orange',
+          bgColor: 'rgba(249, 115, 22, 0.8)',
+          textColor: 'white'
+        },
+        hard: {
+          color: 'red',
+          bgColor: 'rgba(239, 68, 68, 0.8)',
+          textColor: 'white'
+        }
+      };
+      
+      // 添加筛选后的标记
+      filteredRoutes.forEach(route => {
+        const style = difficultyStyles[route.difficultyLevel];
+        
+        // 创建带名称的自定义图标
+        const customIcon = L.divIcon({
+          className: 'custom-map-marker',
+          html: `
+            <div style="display: flex; flex-direction: column; align-items: center;">
+              <div style="background-color: ${style.color}; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 0 3px ${style.color}; cursor: pointer;"></div>
+              <div class="route-label" style="background-color: ${style.bgColor}; color: ${style.textColor}; margin-top: 8px; padding: 4px 8px; font-size: 14px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">${route.name}</div>
+            </div>
+          `,
+          iconSize: [160, 60],
+          iconAnchor: [80, 30]
+        });
+
+        // 创建标记并添加到地图
+        const marker = L.marker(route.coordinates, { 
+          icon: customIcon,
+          title: route.name
+        }).addTo(window.map);
+        
+        marker.routeId = route.id;
+        
+        // 创建弹出窗口内容
+        const popupContent = `
+          <div class="p-4" style="min-width: 350px;">
+            <h3 class="font-bold text-primary text-xl mb-3">${route.name}</h3>
+            <div class="space-y-2 text-base">
+              <p><strong class="text-gray-700">地区：</strong>${route.region}（${route.location}）</p>
+              <p><strong class="text-gray-700">关键词：</strong>${route.keywords}</p>
+              <p><strong class="text-gray-700">难度：</strong><span style="color: ${style.color}; font-weight: bold;">${route.difficulty}</span></p>
+              <p><strong class="text-gray-700">最佳季节：</strong>${route.season}</p>
+              <p class="mt-3 text-gray-800 leading-relaxed">${route.description}</p>
+            </div>
+          </div>
+        `;
+        
+        marker.bindPopup(popupContent, { 
+          maxWidth: 400,
+          className: 'custom-popup'
+        });
+        
+        window.markers.push(marker);
+      });
+    }
+
+    // 绑定筛选器事件
+    document.addEventListener('DOMContentLoaded', function() {
+      const applyFilterBtn = document.getElementById('applyFilter');
+      const clearFilterBtn = document.getElementById('clearFilter');
+      
+      if (applyFilterBtn) {
+        applyFilterBtn.addEventListener('click', applyFilters);
+      }
+      
+      if (clearFilterBtn) {
+        clearFilterBtn.addEventListener('click', clearFilters);
+      }
+      
+      // 初始化筛选计数
+      updateFilterCount();
+      
+      // 初始渲染路线网格
+      renderRouteGrid();
+    });
+  </script>
+</body>
+</html>
