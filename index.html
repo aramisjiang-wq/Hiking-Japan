@@ -11,8 +11,12 @@
   <!-- 引入Leaflet地图库 -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://unpkg.com/leaflet-polylinedecorator@1.6.0/dist/leaflet.polylineDecorator.js"></script>
   <!-- 引入Noto Sans JP字体 - 日式风格 -->
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Serif+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- 引入Granim.js库 - 渐变动画 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/granim/2.0.0/granim.min.js"></script>
   
   <!-- 配置Tailwind自定义颜色和字体 - 日式侘寂风格 -->
   <script>
@@ -178,26 +182,186 @@
         border: 1px solid rgba(139, 115, 85, 0.05);
         backdrop-filter: blur(8px);
       }
+      
+      /* 路线轨迹样式 */
+      .hiking-route-path {
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        transition: all 0.3s ease;
+        stroke-dasharray: 1000;
+        stroke-dashoffset: 1000;
+        animation: drawRoute 2s ease-out forwards;
+      }
+      
+      .hiking-route-path:hover {
+        stroke-width: 8 !important;
+        filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+      }
+      
+      @keyframes drawRoute {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+      
+      .route-highlight {
+        animation: glow 2s ease-in-out infinite alternate;
+      }
+      
+      @keyframes glow {
+        from {
+          filter: drop-shadow(0 0 5px rgba(255,255,255,0.5));
+        }
+        to {
+          filter: drop-shadow(0 0 15px rgba(255,255,255,0.8));
+        }
+      }
+      
+      /* 路线信息弹窗样式 */
+      .route-info-popup {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      }
+      
+      .custom-route-popup .leaflet-popup-content-wrapper {
+        background: transparent;
+        border-radius: 8px;
+        box-shadow: none;
+      }
+      
+      .custom-route-popup .leaflet-popup-content {
+        margin: 0;
+        padding: 0;
+      }
+      
+      .route-tooltip {
+        background: rgba(0,0,0,0.8);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 4px 8px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+      
+      /* 起点终点标记动画 */
+      .leaflet-marker-icon.route-marker {
+        animation: pulse 2s infinite;
+      }
+      
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+          opacity: 1;
+        }
+        50% {
+          transform: scale(1.1);
+          opacity: 0.8;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      
+      /* Banner渐变背景容器 */
+      .banner-animation-container {
+        position: relative;
+        overflow: hidden;
+      }
+      
+      /* Granim.js渐变背景 */
+      #banner-gradient {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 0;
+      }
+      
+      @media (prefers-reduced-motion: reduce) {
+        .cloud, .sunray, .hiker, .mountain-silhouette, .banner-animation-container::before, .particle {
+          animation: none !important;
+        }
+      }
+      
+
+      
+      @media (max-width: 768px) {
+        .cloud {
+          width: 40px;
+          height: 15px;
+        }
+        
+        .cloud::before {
+          width: 18px;
+          height: 18px;
+          top: -8px;
+          left: 8px;
+        }
+        
+        .cloud::after {
+          width: 25px;
+          height: 15px;
+          right: 8px;
+        }
+        
+        .hiker {
+          width: 20px;
+          height: 30px;
+          bottom: 15%;
+        }
+        
+        .hiker::before {
+          font-size: 18px;
+        }
+        
+        .mountain-silhouette {
+          height: 60px;
+        }
+        
+        .sunray {
+          height: 80px;
+        }
+      }
+      
+      @media (max-width: 480px) {
+        .mountain-silhouette {
+          height: 40px;
+        }
+        
+        .hiker {
+          animation-duration: 20s;
+        }
+        
+        .cloud1 { animation-duration: 12s; }
+        .cloud2 { animation-duration: 16s; }
+        .cloud3 { animation-duration: 14s; }
+      }
     }
   </style>
 </head>
 <body class="bg-light text-gray-800">
   <!-- 页面头部 - 日式风格 -->
-  <header class="bg-gradient-to-r from-primary via-wabi-beige to-secondary text-ink-black shadow-lg border-b border-wabi-beige/30">
+  <header class="bg-gradient-to-r from-primary via-wabi-beige to-secondary text-ink-black shadow-lg border-b border-wabi-beige/30 banner-animation-container">
     <div class="container mx-auto px-4 py-8">
       <h1 class="text-[clamp(1.8rem,4vw,3rem)] font-japanese font-bold flex items-center tracking-wide">
         <i class="fa fa-mountain mr-4 text-accent"></i>
         <span class="bg-gradient-to-r from-ink-black to-primary bg-clip-text text-transparent">
-          日本の山道
+          日本山径
         </span>
       </h1>
-      <p class="mt-3 text-lg opacity-80 font-light tracking-wider">自然と文化の調和、心の旅へ</p>
+      <p class="mt-3 text-lg opacity-80 font-light tracking-wider">自然与文化的和谐，心灵之旅</p>
       <div class="mt-4 flex items-center space-x-4 text-sm opacity-70">
-        <span class="flex items-center"><i class="fa fa-leaf mr-2 text-matcha-green"></i>四季折々</span>
-        <span class="flex items-center"><i class="fa fa-torii-gate mr-2 text-accent"></i>神社仏閣</span>
-        <span class="flex items-center"><i class="fa fa-water mr-2 text-secondary"></i>渓谷温泉</span>
+        <span class="flex items-center"><i class="fa fa-leaf mr-2 text-matcha-green"></i>四季变幻</span>
+        <span class="flex items-center"><i class="fa fa-torii-gate mr-2 text-accent"></i>神社佛阁</span>
+        <span class="flex items-center"><i class="fa fa-water mr-2 text-secondary"></i>溪谷温泉</span>
       </div>
     </div>
+    
+    <!-- Granim.js渐变背景 -->
+    <div id="banner-gradient" class="absolute inset-0 z-0"></div>
   </header>
 
   <!-- 主要内容区 -->
@@ -206,25 +370,25 @@
     <div class="flex flex-wrap justify-between items-center mb-8 gap-6">
       <div class="flex items-center space-x-3">
         <button id="zoomIn" class="japanese-button bg-rice-paper border border-primary/20 text-primary hover:bg-primary hover:text-rice-paper px-5 py-2.5 flex items-center text-sm">
-          <i class="fa fa-search-plus mr-2"></i> 拡大
+          <i class="fa fa-search-plus mr-2"></i> 放大
         </button>
         <button id="zoomOut" class="japanese-button bg-rice-paper border border-primary/20 text-primary hover:bg-primary hover:text-rice-paper px-5 py-2.5 flex items-center text-sm">
-          <i class="fa fa-search-minus mr-2"></i> 縮小
+          <i class="fa fa-search-minus mr-2"></i> 缩小
         </button>
         <button id="resetView" class="japanese-button bg-rice-paper border border-primary/20 text-primary hover:bg-primary hover:text-rice-paper px-5 py-2.5 flex items-center text-sm">
-          <i class="fa fa-home mr-2"></i> 初期表示
+          <i class="fa fa-home mr-2"></i> 重置视图
         </button>
       </div>
       
       <div class="flex flex-wrap gap-4">
         <span class="inline-flex items-center px-4 py-2 japanese-card text-sm">
-          <span class="w-3 h-3 rounded-full bg-matcha-green mr-3"></span>初心者 (★☆☆)
+          <span class="w-3 h-3 rounded-full bg-matcha-green mr-3"></span>初学者 (★☆☆)
         </span>
         <span class="inline-flex items-center px-4 py-2 japanese-card text-sm">
-          <span class="w-3 h-3 rounded-full bg-accent mr-3"></span>中級者 (★★☆)
+          <span class="w-3 h-3 rounded-full bg-accent mr-3"></span>中级者 (★★☆)
         </span>
         <span class="inline-flex items-center px-4 py-2 japanese-card text-sm">
-          <span class="w-3 h-3 rounded-full bg-sabi-gray mr-3"></span>上級者 (★★★)
+          <span class="w-3 h-3 rounded-full bg-sabi-gray mr-3"></span>高级者 (★★★)
         </span>
       </div>
     </div>
@@ -250,19 +414,19 @@
     <!-- 路线列表 - 日式风格 -->
     <div class="mt-12 japanese-card p-6">
       <h2 class="text-2xl font-japanese font-medium mb-6 text-primary border-b border-primary/20 pb-4">
-        <i class="fa fa-list-ul mr-3 text-accent"></i>山道一覧
+        <i class="fa fa-list-ul mr-3 text-accent"></i>山径列表
       </h2>
       
       <!-- 分类筛选器 -->
       <div class="mb-8 p-4 bg-rice-paper/50 rounded border border-primary/10">
         <h3 class="text-lg font-medium text-primary mb-4 flex items-center">
-          <i class="fa fa-filter mr-2 text-accent"></i>絞り込み条件
+          <i class="fa fa-filter mr-2 text-accent"></i>筛选条件
         </h3>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label class="block text-sm text-primary mb-2">地域</label>
+            <label class="block text-sm text-primary mb-2">地区</label>
             <select id="regionFilter" class="w-full px-3 py-2 bg-rice-paper border border-primary/20 rounded text-sm focus:outline-none focus:border-accent">
-              <option value="">すべての地域</option>
+              <option value="">所有地区</option>
               <option value="hokkaido">北海道地区</option>
               <option value="tohoku">东北地区</option>
               <option value="kanto">关东地区</option>
@@ -274,31 +438,34 @@
             </select>
           </div>
           <div>
-            <label class="block text-sm text-primary mb-2">難易度</label>
+            <label class="block text-sm text-primary mb-2">难度</label>
             <select id="difficultyFilter" class="w-full px-3 py-2 bg-rice-paper border border-primary/20 rounded text-sm focus:outline-none focus:border-accent">
-              <option value="">すべての難易度</option>
-              <option value="easy">初心者 (★☆☆)</option>
-              <option value="medium">中級者 (★★☆)</option>
-              <option value="hard">上級者 (★★★)</option>
+              <option value="">所有难度</option>
+              <option value="easy">初学者 (★☆☆)</option>
+              <option value="medium">中级者 (★★☆)</option>
+              <option value="hard">高级者 (★★★)</option>
             </select>
           </div>
           <div>
-            <label class="block text-sm text-primary mb-2">季節</label>
+            <label class="block text-sm text-primary mb-2">季节</label>
             <select id="seasonFilter" class="w-full px-3 py-2 bg-rice-paper border border-primary/20 rounded text-sm focus:outline-none focus:border-accent">
-              <option value="">すべての季節</option>
-              <option value="spring">春 (3-5月)</option>
-              <option value="summer">夏 (6-8月)</option>
-              <option value="autumn">秋 (9-11月)</option>
-              <option value="winter">冬 (12-2月)</option>
+              <option value="">所有季节</option>
+              <option value="spring">春季 (3-5月)</option>
+              <option value="summer">夏季 (6-8月)</option>
+              <option value="autumn">秋季 (9-11月)</option>
+              <option value="winter">冬季 (12-2月)</option>
             </select>
           </div>
         </div>
         <div class="mt-4 flex gap-3">
           <button id="applyFilter" class="japanese-button bg-accent text-white px-6 py-2 text-sm hover:bg-accent/90">
-            <i class="fa fa-search mr-2"></i>検索
+            <i class="fa fa-search mr-2"></i>搜索
           </button>
           <button id="clearFilter" class="japanese-button bg-sabi-gray text-white px-6 py-2 text-sm hover:bg-sabi-gray/90">
-            <i class="fa fa-refresh mr-2"></i>クリア
+            <i class="fa fa-refresh mr-2"></i>清除
+          </button>
+          <button onclick="clearCurrentRoute()" class="japanese-button bg-gray-500 text-white px-6 py-2 text-sm hover:bg-gray-600">
+            <i class="fa fa-route mr-2"></i>清除路线
           </button>
         </div>
       </div>
@@ -309,8 +476,8 @@
       
       <div id="noResults" class="hidden text-center py-12">
         <i class="fa fa-search text-4xl text-sabi-gray mb-4"></i>
-        <p class="text-lg text-primary">条件に合う山道が見つかりませんでした</p>
-        <p class="text-sm text-sabi-gray mt-2">検索条件を変更してみてください</p>
+        <p class="text-lg text-primary">未找到符合条件的山径</p>
+        <p class="text-sm text-sabi-gray mt-2">请尝试更改搜索条件</p>
       </div>
     </div>
   </main>
@@ -320,18 +487,43 @@
     <div class="container mx-auto px-4 text-center">
       <div class="mb-4">
         <i class="fas fa-torii-gate text-2xl text-accent mb-2"></i>
-        <p class="text-lg font-japanese tracking-wide">自然と共に、心の旅を</p>
+        <p class="text-lg font-japanese tracking-wide">与自然同在，心灵之旅</p>
       </div>
-      <p class="text-sm opacity-80 mb-2">© 2023 日本の山道ガイド | データは参考値です、出発前に最新情報をご確認ください</p>
+      <p class="text-sm opacity-80 mb-2">© 2023 日本山径指南 | 数据仅供参考，出发前请确认最新信息</p>
       <div class="flex justify-center space-x-6 mt-4 text-sm">
         <span class="flex items-center"><i class="fa fa-exclamation-triangle mr-2 text-accent"></i>安全第一</span>
         <span class="flex items-center"><i class="fa fa-leaf mr-2 text-matcha-green"></i>自然保護</span>
-        <span class="flex items-center"><i class="fa fa-heart mr-2 text-sakura-pink"></i>感謝の心</span>
+        <span class="flex items-center"><i class="fa fa-heart mr-2 text-sakura-pink"></i>感恩之心</span>
       </div>
     </div>
   </footer>
 
   <script>
+    // Granim.js 渐变背景动画
+    function initGranimGradient() {
+      const granimInstance = new Granim({
+        element: '#banner-gradient',
+        direction: 'radial',
+        isPausedWhenNotInView: true,
+        states: {
+          "default-state": {
+            gradients: [
+              ['#6B728E', '#8B7355'],
+              ['#D4AF37', '#6B728E'],
+              ['#8B7355', '#D4AF37']
+            ],
+            transitionSpeed: 2000,
+            loop: true
+          }
+        }
+      });
+    }
+
+    // 页面加载完成后初始化渐变背景
+    document.addEventListener('DOMContentLoaded', function() {
+      initGranimGradient();
+    });
+
     // 地图配置
     const mapConfig = {
       center: [36.2048, 138.2529],
@@ -357,13 +549,21 @@
       {
         id: 1,
         name: "屋久岛绳文杉步道",
-        nameJa: "屋久島縄文杉コース",
+        nameJa: "屋久岛绳文杉路线",
         location: "鹿儿岛县",
         region: "九州地区",
         regionCode: "kyushu",
         coordinates: [30.394, 130.538],
+        path: [
+          [30.394, 130.538],
+          [30.395, 130.540],
+          [30.396, 130.542],
+          [30.397, 130.544],
+          [30.398, 130.546],
+          [30.399, 130.548]
+        ],
         keywords: "宫崎骏森林、千年巨树、绿光秘境",
-        keywordsJa: "ジブリの森、千年の巨樹、緑の秘境",
+        keywordsJa: "吉卜力森林、千年巨树、绿色秘境",
         difficulty: "★★☆",
         difficultyLevel: "medium",
         duration: "4-6小时",
@@ -384,8 +584,16 @@
         region: "本州-近畿地方",
         regionCode: "kinki",
         coordinates: [33.731, 135.983],
+        path: [
+          [33.731, 135.983],
+          [33.732, 135.985],
+          [33.733, 135.987],
+          [33.734, 135.989],
+          [33.735, 135.991],
+          [33.736, 135.993]
+        ],
         keywords: "世界遗产、神宫巡礼、山海禅意",
-        keywordsJa: "世界遺産、神宮巡礼、山海の禅意",
+        keywordsJa: "世界遗产、神宫巡礼、山海禅意",
         difficulty: "★★☆",
         difficultyLevel: "medium",
         duration: "10-15km/日",
@@ -401,13 +609,21 @@
       {
         id: 3,
         name: "表银座纵走",
-        nameJa: "表銀座縦走",
+        nameJa: "表银座纵走",
         location: "新潟县",
         region: "本州-中部地方",
         regionCode: "chubu",
         coordinates: [37.050, 138.778],
+        path: [
+          [37.050, 138.778],
+          [37.051, 138.780],
+          [37.052, 138.782],
+          [37.053, 138.784],
+          [37.054, 138.786],
+          [37.055, 138.788]
+        ],
         keywords: "雪国秘境、雪墙盛宴、治愈温泉",
-        keywordsJa: "雪国の秘境、雪の壁、癒しの温泉",
+        keywordsJa: "雪国秘境、雪墙、疗愈温泉",
         difficulty: "★★☆",
         difficultyLevel: "medium",
         duration: "6-8小时",
@@ -428,8 +644,16 @@
         region: "本州-中部地方",
         regionCode: "chubu",
         coordinates: [35.941, 137.940],
+        path: [
+          [35.941, 137.940],
+          [35.942, 137.942],
+          [35.943, 137.944],
+          [35.944, 137.946],
+          [35.945, 137.948],
+          [35.946, 137.950]
+        ],
         keywords: "江户古驿道、宿场町时光机、茶屋烟火气",
-        keywordsJa: "江戸の古い宿場町、茶屋の情緒",
+        keywordsJa: "江户古老驿站、茶屋风情",
         difficulty: "★☆☆",
         difficultyLevel: "easy",
         duration: "3-6小时",
@@ -450,8 +674,16 @@
         region: "本州-中部地方",
         regionCode: "chubu",
         coordinates: [36.617, 137.567],
+        path: [
+          [36.617, 137.567],
+          [36.618, 137.569],
+          [36.619, 137.571],
+          [36.620, 137.573],
+          [36.621, 137.575],
+          [36.622, 137.577]
+        ],
         keywords: "北阿尔卑斯之心、河童故乡、瀑布秘境",
-        keywordsJa: "北アルプスの心臓、河童の里、滝の秘境",
+        keywordsJa: "北阿尔卑斯心脏、河童之乡、瀑布秘境",
         difficulty: "★★☆",
         difficultyLevel: "medium",
         duration: "4-6小时",
@@ -467,13 +699,13 @@
       {
         id: 6,
         name: "四国八十八所巡礼",
-        nameJa: "四国八十八ヶ所巡礼",
+        nameJa: "四国八十八所巡礼",
         location: "德岛/香川/爱媛/高知",
         region: "四国地区",
         regionCode: "shikoku",
         coordinates: [33.841, 133.050],
         keywords: "佛教千年信仰、御朱印收集、山野治愈",
-        keywordsJa: "仏教千年の信仰、御朱印集め、山の癒し",
+        keywordsJa: "佛教千年信仰、御朱印收集、山野疗愈",
         difficulty: "★★★",
         difficultyLevel: "hard",
         duration: "多日行程",
@@ -489,13 +721,13 @@
       {
         id: 7,
         name: "祖谷溪溪谷步道",
-        nameJa: "祖谷渓渓谷コース",
+        nameJa: "祖谷溪溪谷路线",
         location: "德岛县",
         region: "四国地区",
         regionCode: "shikoku",
         coordinates: [33.900, 134.267],
         keywords: "日本小瑞士、悬空吊桥、刀削溪谷",
-        keywordsJa: "日本の小瑞士、かずら橋、渓谷の絶景",
+        keywordsJa: "日本小瑞士、藤桥、溪谷绝景",
         difficulty: "★★☆",
         difficultyLevel: "medium",
         duration: "3-4小时",
@@ -511,13 +743,13 @@
       {
         id: 8,
         name: "烧岳",
-        nameJa: "焼岳",
+        nameJa: "烧岳",
         location: "长野/岐阜县",
         region: "本州-中部地方",
         regionCode: "chubu",
         coordinates: [36.150, 137.517],
         keywords: "火山口秘境、翡翠湖泊、双峰挑战",
-        keywordsJa: "火山口の秘境、翡翠の湖、双峰の挑戦",
+        keywordsJa: "火山口秘境、翡翠湖泊、双峰挑战",
         difficulty: "★★★",
         difficultyLevel: "hard",
         duration: "8-10小时",
@@ -533,13 +765,13 @@
       {
         id: 9,
         name: "知床五湖生态步道",
-        nameJa: "知床五湖エココース",
+        nameJa: "知床五湖生态路线",
         location: "北海道",
         region: "北海道地区",
         regionCode: "hokkaido",
         coordinates: [44.033, 144.567],
         keywords: "世界自然遗产、原始森林、虾夷鹿偶遇",
-        keywordsJa: "世界自然遺産、原始林、エゾ鹿との遭遇",
+        keywordsJa: "世界自然遗产、原始林、虾夷鹿偶遇",
         difficulty: "★★☆",
         difficultyLevel: "medium",
         duration: "4-5小时",
@@ -555,13 +787,13 @@
       {
         id: 10,
         name: "富士山五合目→十合目",
-        nameJa: "富士山五合目から十合目",
+        nameJa: "富士山五合目至十合目",
         location: "静冈/山梨",
         region: "本州-近畿地方",
         regionCode: "kinki",
         coordinates: [35.361, 138.727],
         keywords: "日本象征、云海日出、火山岩挑战",
-        keywordsJa: "日本の象徴、雲海の日出、火山岩の挑戦",
+        keywordsJa: "日本象征、云海日出、火山岩挑战",
         difficulty: "★☆☆",
         difficultyLevel: "easy",
         duration: "5-6小时",
@@ -604,7 +836,7 @@
         setTimeout(() => {
           try {
             // 创建地图实例 - 修复交互功能
-            const map = L.map('map', {
+            window.map = L.map('map', {
               center: mapConfig.center,
               zoom: mapConfig.zoom,
               zoomControl: true,
@@ -719,6 +951,11 @@
 
     // 初始化地图功能
     function initializeMapFeatures(map) {
+      // 确保地图实例全局可用
+      window.map = map;
+      
+      // 初始化全局标记数组
+      window.markers = [];
 
       // 定义不同难度的样式
       const difficultyStyles = {
@@ -762,6 +999,10 @@
           title: route.name // 鼠标悬停时显示名称
         }).addTo(map);
         
+        // 保存标记到全局数组
+        marker.routeId = route.id;
+        window.markers.push(marker);
+        
         // 创建弹出窗口内容（扩大版）
         const popupContent = `
           <div class="p-4" style="min-width: 350px;">
@@ -795,42 +1036,7 @@
         });
       });
 
-      // 生成路线列表
-      const routesContainer = document.querySelector('.grid');
-      hikingRoutes.forEach(route => {
-        const style = difficultyStyles[route.difficultyLevel];
-        const routeItem = document.createElement('div');
-        routeItem.id = `route-${route.id}`;
-        routeItem.className = 'route-item bg-light rounded p-3 border border-gray-200 hover:shadow-md transition cursor-pointer';
-        routeItem.innerHTML = `
-          <h3 class="font-semibold text-primary">${route.name}</h3>
-          <p class="text-sm text-gray-600">${route.region}（${route.location}）</p>
-          <p class="text-xs text-gray-500 mt-1">${route.keywords}</p>
-          <div class="flex justify-between items-center mt-2">
-            <span class="text-xs px-2 py-1 rounded" style="background-color: ${style.bgColor}; color: ${style.textColor}">
-              ${route.difficulty}
-            </span>
-            <span class="text-xs text-gray-500">${route.season}</span>
-          </div>
-        `;
-        
-        // 点击列表项时定位到地图对应位置
-        routeItem.addEventListener('click', () => {
-          map.setView(route.coordinates, 10);
-          setTimeout(() => {
-            // 触发标记点击事件
-            map.eachLayer(layer => {
-              if (layer instanceof L.Marker && 
-                  layer.getLatLng().lat.toFixed(3) === route.coordinates[0].toFixed(3) && 
-                  layer.getLatLng().lng.toFixed(3) === route.coordinates[1].toFixed(3)) {
-                layer.openPopup();
-              }
-            });
-          }, 500);
-        });
-        
-        routesContainer.appendChild(routeItem);
-      });
+      // 路线列表将通过renderRouteGrid()函数统一渲染
 
       // 地图控制按钮功能
       document.getElementById('zoomIn').addEventListener('click', () => {
@@ -849,6 +1055,9 @@
       window.addEventListener('resize', () => {
         map.invalidateSize();
       });
+      
+      // 初始化筛选器和路线列表
+      initializeFilters();
     }
 
     // 重新加载地图按钮事件
@@ -932,12 +1141,17 @@
           </div>
           <p class="text-sm text-sabi-gray mb-2"><i class="fa fa-map-marker-alt mr-2 text-accent"></i>${route.location}</p>
           <p class="text-xs text-primary/70 mb-3">${route.keywords}</p>
-          <div class="flex justify-between items-center text-xs text-sabi-gray">
+          <div class="flex justify-between items-center text-xs text-sabi-gray mb-3">
             <span><i class="fa fa-clock mr-1"></i>${route.duration}</span>
             <span><i class="fa fa-calendar mr-1"></i>${route.season}</span>
           </div>
-          <div class="mt-3 pt-3 border-t border-primary/10">
-            <p class="text-xs text-primary/80 leading-relaxed">${route.description}</p>
+          <div class="flex justify-between items-center">
+            <div class="text-xs text-primary/80 leading-relaxed flex-1">${route.description}</div>
+            <button onclick="event.stopPropagation(); clearCurrentRoute();" 
+                    class="ml-2 px-2 py-1 text-xs bg-gray-200 hover:bg-gray-300 rounded transition-colors duration-200" 
+                    title="清除路线显示">
+              <i class="fa fa-times"></i>
+            </button>
           </div>
         </div>
       `).join('');
@@ -952,10 +1166,286 @@
       }
     }
 
+    function getDifficultyColor(level) {
+      switch(level) {
+        case 'easy': return '#10b981';    // 抹茶绿
+        case 'medium': return '#f97316';  // 橙色
+        case 'hard': return '#ef4444';    // 红色
+        default: return '#6366f1';        // 主色调
+      }
+    }
+
+    // 计算路线总距离（公里）
+    function calculateRouteDistance(path) {
+      let totalDistance = 0;
+      for (let i = 0; i < path.length - 1; i++) {
+        const point1 = L.latLng(path[i]);
+        const point2 = L.latLng(path[i + 1]);
+        totalDistance += point1.distanceTo(point2) / 1000; // 转换为公里
+      }
+      return Math.round(totalDistance * 10) / 10; // 保留一位小数
+    }
+
+    // 全局变量存储当前显示的路线
+    let currentRouteLayer = null;
+
+    // 显示路线统计信息
+    function showRouteStats(route, actualDistance) {
+      // 创建临时通知
+      const notification = L.control({ position: 'topright' });
+      notification.onAdd = function(map) {
+        const div = L.DomUtil.create('div', 'route-stats-notification');
+        div.innerHTML = `
+          <div style="
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-left: 4px solid ${getDifficultyColor(route.difficultyLevel)};
+            min-width: 200px;
+            font-size: 14px;
+          ">
+            <div style="font-weight: bold; color: #374151; margin-bottom: 8px;">
+              <i class="fa fa-chart-line mr-2"></i>路线统计
+            </div>
+            <div style="color: #6b7280; font-size: 12px;">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                <span>实际距离:</span>
+                <span style="font-weight: 500;">${actualDistance} km</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                <span>路径点数:</span>
+                <span style="font-weight: 500;">${route.path.length} 个</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span>预计时间:</span>
+                <span style="font-weight: 500;">${Math.round(actualDistance * 1.5)} 小时</span>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        // 5秒后自动移除
+        setTimeout(() => {
+          notification.remove();
+        }, 5000);
+        
+        return div;
+      };
+      notification.addTo(window.map);
+    }
+
+    // 清除当前显示的路线
+    function clearCurrentRoute() {
+      if (currentRouteLayer) {
+        // 清除主路线
+        window.map.removeLayer(currentRouteLayer);
+        
+        // 清除阴影层
+        if (currentRouteLayer.shadowLayer) {
+          window.map.removeLayer(currentRouteLayer.shadowLayer);
+        }
+        
+        // 清除高亮层
+        if (currentRouteLayer.highlightLayer) {
+          window.map.removeLayer(currentRouteLayer.highlightLayer);
+        }
+        
+        // 清除箭头
+        if (currentRouteLayer.arrowHead) {
+          window.map.removeLayer(currentRouteLayer.arrowHead);
+        }
+        
+        // 清除起点和终点标记
+        if (currentRouteLayer.startMarker) {
+          window.map.removeLayer(currentRouteLayer.startMarker);
+        }
+        if (currentRouteLayer.endMarker) {
+          window.map.removeLayer(currentRouteLayer.endMarker);
+        }
+        
+        currentRouteLayer = null;
+      }
+    }
+
     function focusOnRoute(routeId) {
       const route = filteredRoutes.find(r => r.id === routeId);
       if (route && window.map) {
+        // 清除之前的路线
+        if (currentRouteLayer) {
+          window.map.removeLayer(currentRouteLayer);
+        }
+        
+        // 设置地图视图到路线起点
         window.map.setView(route.coordinates, 10);
+        
+        // 如果有路径数据，显示路线轨迹
+        if (route.path && route.path.length > 0) {
+          // 创建渐变色的路线轨迹
+          currentRouteLayer = L.polyline(route.path, {
+            color: getDifficultyColor(route.difficultyLevel),  // 根据难度设置颜色
+            weight: 6,
+            opacity: 0.9,
+            lineCap: 'round',
+            lineJoin: 'round',
+            smoothFactor: 1.0,
+            className: 'hiking-route-path'
+          }).addTo(window.map);
+          
+          // 添加路线高亮效果
+          const highlightLayer = L.polyline(route.path, {
+            color: '#ffffff',
+            weight: 10,
+            opacity: 0.4,
+            lineCap: 'round',
+            lineJoin: 'round',
+            smoothFactor: 1.0,
+            className: 'route-highlight'
+          }).addTo(window.map);
+          
+          // 添加路线箭头
+          const arrowHead = L.polylineDecorator(route.path, {
+            patterns: [{
+              offset: '100%',
+              repeat: 0,
+              symbol: L.Symbol.arrowHead({
+                pixelSize: 15,
+                polygon: false,
+                pathOptions: {
+                  stroke: true,
+                  weight: 2,
+                  color: getDifficultyColor(route.difficultyLevel),
+                  opacity: 0.9
+                }
+              })
+            }]
+          }).addTo(window.map);
+          
+          // 添加路线阴影效果
+          const shadowLayer = L.polyline(route.path, {
+            color: '#000000',
+            weight: 8,
+            opacity: 0.3,
+            lineCap: 'round',
+            lineJoin: 'round',
+            offset: [2, 2]
+          }).addTo(window.map);
+          
+          // 添加起点和终点标记
+          const startMarker = L.circleMarker(route.path[0], {
+            radius: 8,
+            fillColor: '#10b981',
+            color: '#ffffff',
+            weight: 3,
+            opacity: 1,
+            fillOpacity: 0.9
+          }).addTo(window.map);
+          
+          const endMarker = L.circleMarker(route.path[route.path.length - 1], {
+            radius: 8,
+            fillColor: '#ef4444',
+            color: '#ffffff',
+            weight: 3,
+            opacity: 1,
+            fillOpacity: 0.9
+          }).addTo(window.map);
+          
+          // 添加起点和终点标签
+          startMarker.bindTooltip('起点', {
+            permanent: false,
+            direction: 'top',
+            className: 'route-tooltip'
+          });
+          
+          endMarker.bindTooltip('终点', {
+            permanent: false,
+            direction: 'top',
+            className: 'route-tooltip'
+          });
+          
+          // 计算实际路线距离
+          const actualDistance = calculateRouteDistance(route.path);
+          
+          // 添加路线信息弹窗
+          const routeInfo = `
+            <div class="route-info-popup p-4">
+              <h4 class="font-bold text-primary mb-3 text-lg">${route.name}</h4>
+              <div class="grid grid-cols-2 gap-3 text-sm mb-3">
+                <div class="flex items-center">
+                  <i class="fa fa-route mr-2 text-accent"></i>
+                  <span>距离: ${actualDistance}km</span>
+                </div>
+                <div class="flex items-center">
+                  <i class="fa fa-clock mr-2 text-accent"></i>
+                  <span>时长: ${route.duration}</span>
+                </div>
+                <div class="flex items-center">
+                  <i class="fa fa-signal mr-2 text-accent"></i>
+                  <span>难度: ${route.difficulty}</span>
+                </div>
+                <div class="flex items-center">
+                  <i class="fa fa-mountain mr-2 text-accent"></i>
+                  <span>海拔: ${route.elevation}</span>
+                </div>
+              </div>
+              <div class="border-t pt-3 mt-3">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="px-2 py-1 rounded" style="background-color: ${getDifficultyColor(route.difficultyLevel)}20; color: ${getDifficultyColor(route.difficultyLevel)}">
+                    ${route.difficultyLevel === 'easy' ? '初学者友好' : route.difficultyLevel === 'medium' ? '中级挑战' : '高级难度'}
+                  </span>
+                  <span class="text-sabi-gray">${route.location}</span>
+                </div>
+              </div>
+            </div>
+          `;
+          
+          currentRouteLayer.bindPopup(routeInfo, {
+            maxWidth: 300,
+            className: 'custom-route-popup'
+          });
+          
+          // 调整地图视野以包含整个路线
+          const group = new L.featureGroup([currentRouteLayer, shadowLayer, highlightLayer, arrowHead, startMarker, endMarker]);
+          window.map.fitBounds(group.getBounds(), {
+            padding: [30, 30],
+            maxZoom: 12
+          });
+          
+          // 添加路线点击事件
+          currentRouteLayer.on('click', function(e) {
+            // 高亮显示路线
+            this.setStyle({
+              weight: 8,
+              opacity: 1
+            });
+            
+            // 显示路线统计信息
+            showRouteStats(route, actualDistance);
+          });
+          
+          // 鼠标悬停效果
+          currentRouteLayer.on('mouseover', function(e) {
+            this.setStyle({
+              weight: 8,
+              opacity: 1
+            });
+            this.getElement().style.cursor = 'pointer';
+          });
+          
+          currentRouteLayer.on('mouseout', function(e) {
+            this.setStyle({
+              weight: 6,
+              opacity: 0.9
+            });
+          });
+          
+          // 存储所有图层以便后续清除
+          currentRouteLayer.shadowLayer = shadowLayer;
+          currentRouteLayer.highlightLayer = highlightLayer;
+          currentRouteLayer.arrowHead = arrowHead;
+          currentRouteLayer.startMarker = startMarker;
+          currentRouteLayer.endMarker = endMarker;
+        }
         
         // 高亮对应的标记
         if (window.markers) {
@@ -1044,8 +1534,8 @@
       });
     }
 
-    // 绑定筛选器事件
-    document.addEventListener('DOMContentLoaded', function() {
+    // 绑定筛选器事件 - 合并到主初始化函数中
+    function initializeFilters() {
       const applyFilterBtn = document.getElementById('applyFilter');
       const clearFilterBtn = document.getElementById('clearFilter');
       
@@ -1062,7 +1552,135 @@
       
       // 初始渲染路线网格
       renderRouteGrid();
-    });
+    }
   </script>
+  
+  <!-- 支持与赞赏模块 -->
+  <section class="py-16 bg-light relative overflow-hidden">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto">
+        <!-- 模块标题 -->
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-japanese font-bold text-primary mb-4">心よりのご支援</h2>
+          <p class="text-dark text-lg opacity-90 max-w-2xl mx-auto">您的每一份支持，都是我们继续分享日本徒步之美的动力</p>
+        </div>
+        
+        <!-- 核心内容区 -->
+        <div class="bg-white rounded-wabi shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl border border-wabi-beige/30">
+          <div class="flex flex-col md:flex-row">
+            <!-- 左侧：收款码区域 -->
+            <div class="md:w-1/2 p-8 bg-gradient-to-br from-primary/5 to-white flex flex-col items-center justify-center">
+              <div class="bg-white p-6 rounded-wabi shadow-md border border-wabi-beige/50 transform transition-transform duration-300 hover:scale-105 w-full max-w-xs">
+                <div class="text-center mb-4">
+                  <h3 class="text-xl font-bold text-primary">感谢您的支持与鼓励</h3>
+                </div>
+                <!-- 微信支付二维码 -->
+                <div class="relative mx-auto w-full max-w-sm h-auto bg-green-500 rounded-md overflow-hidden flex flex-col items-center justify-center p-2">
+                  <img src="微信收款图片.jpeg" alt="微信支付二维码" class="max-h-64 object-contain p-4" loading="lazy">
+                </div>
+                <div class="text-center mt-4">
+                  <p class="text-sm text-dark">扫描上方二维码支持我们</p>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 右侧：情感与实用信息 -->
+            <div class="md:w-1/2 p-8 bg-gradient-to-br from-white to-primary/5">
+              <!-- 情感价值内容 -->
+              <div class="mb-8">
+                <div class="flex items-center mb-4">
+                  <i class="fa fa-heart text-accent text-2xl mr-3"></i>
+                  <h3 class="text-xl font-semibold text-primary">与自然同行</h3>
+                </div>
+                <p class="text-dark leading-relaxed mb-4">
+                  每一次徒步都是一次心灵的旅行。您的支持将帮助我们继续探索日本的山野之美，
+                  记录更多不为人知的徒步路线，分享更详尽的旅行攻略。
+                </p>
+                <p class="text-dark leading-relaxed italic">
+                  "登山则情满于山，观海则意溢于海" — 刘勰《文心雕龙》
+                </p>
+              </div>
+              
+              <!-- 实用价值内容 -->
+              <div>
+                <div class="flex items-center mb-4">
+                  <i class="fa fa-map-marker text-secondary text-2xl mr-3"></i>
+                  <h3 class="text-xl font-semibold text-primary">您的支持将用于</h3>
+                </div>
+                <ul class="space-y-3">
+                  <li class="flex items-start">
+                    <i class="fa fa-check-circle text-secondary mt-1 mr-3"></i>
+                    <span class="text-dark">路线实地探访与拍摄</span>
+                  </li>
+                  <li class="flex items-start">
+                    <i class="fa fa-check-circle text-secondary mt-1 mr-3"></i>
+                    <span class="text-dark">最新徒步信息更新与维护</span>
+                  </li>
+                  <li class="flex items-start">
+                    <i class="fa fa-check-circle text-secondary mt-1 mr-3"></i>
+                    <span class="text-dark">专业装备评测与推荐</span>
+                  </li>
+                  <li class="flex items-start">
+                    <i class="fa fa-check-circle text-secondary mt-1 mr-3"></i>
+                    <span class="text-dark">网站维护与功能优化</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <!-- 额外福利部分已移除 -->
+            </div>
+          </div>
+          
+          <!-- 底部装饰 -->
+          <div class="bg-primary/5 p-4 text-center text-sm text-sabi-gray">
+            <p>心が繋がる、山と共に — 与山相连，心手相牵</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 装饰元素 -->
+    <div class="absolute -top-10 -right-10 w-40 h-40 bg-secondary/10 rounded-full blur-2xl"></div>
+    <div class="absolute -bottom-10 -left-10 w-60 h-60 bg-primary/10 rounded-full blur-3xl"></div>
+  </section>
+  
+  <style>
+    /* 模块动画效果 */
+    .bg-light {
+      position: relative;
+      /* 移除overflow:hidden以允许页面滚动 */
+    }
+    
+    /* 响应式调整 */
+    @media (max-width: 768px) {
+      .support-module {
+        padding: 12px;
+      }
+      
+      .qr-container {
+        margin-bottom: 1.5rem;
+      }
+    }
+    
+    /* 微交互效果 */
+    button {
+      transition: all 0.3s ease;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+    }
+    
+    button:active {
+      transform: translateY(0);
+    }
+    
+    /* 平滑过渡 */
+    .transition-all {
+      transition-property: all;
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      transition-duration: 300ms;
+    }
+  </style>
 </body>
 </html>
