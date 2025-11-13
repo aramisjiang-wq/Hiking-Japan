@@ -3,7 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>日本十大经典徒步路线地图</title>
+  <title>日本徒步路线地图｜十大经典山径｜难度与季节推荐</title>
+  <meta name="description" content="日本徒步路线地图与攻略：十大经典山径，一键筛选难度与季节，支持地图定位与路线可视化，适合初学者、中级与高级徒步者。">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://hiking-japan.vercel.app/">
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="日本徒步路线地图｜十大经典山径｜难度与季节推荐">
+  <meta property="og:description" content="十大经典日本山径，支持难度与季节筛选、地图定位、路线高亮，助你高效规划徒步之旅。">
+  <meta property="og:url" content="https://hiking-japan.vercel.app/">
+  <meta property="og:site_name" content="日本徒步路线地图">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:image:alt" content="京都鞍马山林木桥步道，参道与森林环抱">
+  <meta property="og:image" content="https://unsplash.com/photos/LKH5IibO_cQ/download?force=true&w=1200&h=630&fit=crop">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="日本徒步路线地图｜十大经典山径｜难度与季节推荐">
+  <meta name="twitter:description" content="十大经典日本山径，支持难度与季节筛选、地图定位、路线高亮，助你高效规划徒步之旅。">
+  <meta name="twitter:url" content="https://hiking-japan.vercel.app/">
+  <meta name="twitter:image" content="https://unsplash.com/photos/LKH5IibO_cQ/download?force=true&w=1200&h=630&fit=crop">
   <!-- 引入Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- 引入Font Awesome -->
@@ -70,7 +88,6 @@
         position: relative;
         background-color: #F5F2E8;
         width: 100%;
-        max-width: 1400px;
         margin: 0 auto;
         border-radius: 3px; /* 侘寂风格小圆角 */
         box-shadow: 0 8px 32px rgba(139, 115, 85, 0.15); /* 柔和的阴影 */
@@ -145,6 +162,16 @@
         position: relative;
         overflow: hidden;
         border-radius: 3px;
+      }
+      /* 全屏地图样式 */
+      .fullscreen-map {
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        width: 100vw !important;
+        height: 100vh !important;
+        z-index: 9999;
+        border-radius: 0 !important;
       }
       .leaflet-container {
         height: 100%;
@@ -282,6 +309,96 @@
         bottom: 0;
         z-index: 0;
       }
+
+      /* 摄影版 Banner：鞍马·木桥山径 */
+      .photo-banner-box {
+        background-image: url('https://unsplash.com/photos/LKH5IibO_cQ/download?force=true&w=2400');
+        background-size: cover;
+        background-position: center;
+        min-height: 42vh;
+        border-radius: 8px;
+        box-shadow: 0 8px 24px rgba(139, 115, 85, 0.18);
+        position: relative;
+        overflow: hidden;
+        display: grid;
+        place-items: center;
+      }
+      .photo-banner-box::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(20,24,20,0.25) 0%, rgba(20,24,20,0.08) 60%);
+        pointer-events: none;
+      }
+      @media (max-width: 768px) {
+        .photo-banner-box { min-height: 30vh; }
+      }
+      
+      /* Hanko 层级保证在遮罩之上 */
+      .hanko { z-index: 1; }
+      .banner-card { z-index: 1; }
+      /* 禅意极简·富士Banner样式 */
+      .fuji-banner {
+        background: #F9F7F1; /* 浅米色背景，通透克制 */
+        min-height: 56vh;
+        display: grid;
+        place-items: center;
+        position: relative;
+        overflow: hidden;
+      }
+      @media (max-width: 768px) {
+        .fuji-banner { min-height: 40vh; }
+      }
+      .fuji-svg {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 40%;
+        pointer-events: none;
+      }
+      .hanko {
+        position: absolute;
+        right: 2rem;
+        top: 2rem;
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: rgba(208, 56, 44, 0.9); /* 朱红 */
+        box-shadow: 0 4px 12px rgba(208, 56, 44, 0.25);
+        display: grid;
+        place-items: center;
+        transform: translateY(-8px);
+        animation: hankoDrop 700ms cubic-bezier(0.22, 1, 0.36, 1) 120ms both;
+      }
+      .hanko-text {
+        color: #fff;
+        font-family: 'Noto Serif JP', serif;
+        font-weight: 600;
+        font-size: 24px;
+        letter-spacing: 2px;
+      }
+      @keyframes hankoDrop {
+        0% { opacity: 0; transform: translateY(-16px) scale(0.95); }
+        60% { opacity: 1; transform: translateY(0) scale(1.02); }
+        100% { transform: translateY(0) scale(1); }
+      }
+      @media (max-width: 768px) {
+        .hanko { width: 48px; height: 48px; right: 1rem; top: 1rem; }
+        .hanko-text { font-size: 18px; }
+      }
+      .banner-card {
+        background: rgba(249, 247, 241, 0.72);
+        border: 1px solid rgba(139, 115, 85, 0.12);
+        backdrop-filter: blur(8px);
+        border-radius: 6px;
+        box-shadow: 0 10px 24px rgba(139, 115, 85, 0.18);
+        max-width: 900px;
+        z-index: 1;
+      }
+      .font-serif-jp {
+        font-family: 'Noto Serif JP', serif;
+      }
       
       @media (prefers-reduced-motion: reduce) {
         .cloud, .sunray, .hiker, .mountain-silhouette, .banner-animation-container::before, .particle {
@@ -346,40 +463,57 @@
   </style>
 </head>
 <body class="bg-light text-gray-800">
-  <!-- 页面头部 - 日式风格 -->
-  <header class="bg-gradient-to-r from-primary via-wabi-beige to-secondary text-ink-black shadow-lg border-b border-wabi-beige/30 banner-animation-container">
-    <div class="container mx-auto px-4 py-8">
-      <h1 class="text-[clamp(1.8rem,4vw,3rem)] font-japanese font-bold flex items-center tracking-wide">
-        <i class="fa fa-mountain mr-4 text-accent"></i>
-        <span class="bg-gradient-to-r from-ink-black to-primary bg-clip-text text-transparent">
-          日本山径
-        </span>
-      </h1>
-      <p class="mt-3 text-lg opacity-80 font-light tracking-wider">自然与文化的和谐，心灵之旅</p>
-      <div class="mt-4 flex items-center space-x-4 text-sm opacity-70">
-        <span class="flex items-center"><i class="fa fa-leaf mr-2 text-matcha-green"></i>四季变幻</span>
-        <span class="flex items-center"><i class="fa fa-torii-gate mr-2 text-accent"></i>神社佛阁</span>
-        <span class="flex items-center"><i class="fa fa-water mr-2 text-secondary"></i>溪谷温泉</span>
+  <!-- 页面头部 - 摄影版：鞍马·木桥山径（盒装） -->
+  <header class="relative text-ink-black border-b border-wabi-beige/30" aria-label="日本杉林徒步小径场景：京都鞍马木桥步道">
+    <div class="mx-auto max-w-[1536px] px-4">
+      <div class="photo-banner-box relative">
+        <!-- 朱红判子（装饰） -->
+        <div class="hanko" aria-hidden="true" style="z-index:1;">
+          <span class="hanko-text">山</span>
+        </div>
+        
+        <!-- 标题卡片（玻璃态） -->
+        <div class="banner-card px-4 py-6" style="z-index:1;">
+          <h1 class="text-[clamp(1.8rem,4vw,3rem)] font-serif-jp font-semibold tracking-wide" aria-label="日本のハイキングルート地図">
+            日本のハイキングルート地図
+          </h1>
+          <p class="mt-2 text-base md:text-lg opacity-85" aria-label="日本徒步路线地图：杉林苔石与木桥山径">
+            日本徒步路线地图 — 以难度、季节与区域探索高质量路线
+          </p>
+          <div class="mt-4">
+            <a href="#routeGrid" class="japanese-button bg-accent text-white px-5 py-2 text-sm hover:bg-accent/90" aria-label="开始探索路线">
+              开始探索路线
+            </a>
+          </div>
+        </div>
       </div>
     </div>
-    
-    <!-- Granim.js渐变背景 -->
-    <div id="banner-gradient" class="absolute inset-0 z-0"></div>
   </header>
 
   <!-- 主要内容区 -->
-  <main class="container mx-auto px-4 py-6" style="max-width: 1600px;"> <!-- 增加主容器最大宽度 -->
+  <main class="container mx-auto px-4 py-6" style="max-width: 1536px;"> <!-- 统一主容器最大宽度为 Tailwind 默认 -->
     <!-- 控制栏 - 日式风格 -->
-    <div class="flex flex-wrap justify-between items-center mb-8 gap-6">
+    <div class="flex flex-wrap justify-between items-center mb-8 gap-6 glass-controlbar sticky top-0 z-50">
       <div class="flex items-center space-x-3">
-        <button id="zoomIn" class="japanese-button bg-rice-paper border border-primary/20 text-primary hover:bg-primary hover:text-rice-paper px-5 py-2.5 flex items-center text-sm">
+        <button id="zoomIn" aria-label="放大地图" class="japanese-button bg-rice-paper border border-primary/20 text-primary hover:bg-primary hover:text-rice-paper px-5 py-2.5 flex items-center text-sm">
           <i class="fa fa-search-plus mr-2"></i> 放大
         </button>
-        <button id="zoomOut" class="japanese-button bg-rice-paper border border-primary/20 text-primary hover:bg-primary hover:text-rice-paper px-5 py-2.5 flex items-center text-sm">
+        <button id="zoomOut" aria-label="缩小地图" class="japanese-button bg-rice-paper border border-primary/20 text-primary hover:bg-primary hover:text-rice-paper px-5 py-2.5 flex items-center text-sm">
           <i class="fa fa-search-minus mr-2"></i> 缩小
         </button>
-        <button id="resetView" class="japanese-button bg-rice-paper border border-primary/20 text-primary hover:bg-primary hover:text-rice-paper px-5 py-2.5 flex items-center text-sm">
+        <button id="resetView" aria-label="重置地图视图" class="japanese-button bg-rice-paper border border-primary/20 text-primary hover:bg-primary hover:text-rice-paper px-5 py-2.5 flex items-center text-sm">
           <i class="fa fa-home mr-2"></i> 重置视图
+        </button>
+        <div class="flex items-center ml-2">
+          <label for="basemapSelect" class="text-sm text-primary mr-2">底图：</label>
+          <select id="basemapSelect" aria-label="选择底图" class="japanese-card px-3 py-2 text-sm focus:outline-none border border-primary/20 bg-rice-paper">
+            <option value="0">HOT OSM</option>
+            <option value="1">标准 OSM</option>
+            <option value="2">Esri 地形图</option>
+          </select>
+        </div>
+        <button id="toggleFullscreen" aria-label="切换全屏" class="japanese-button bg-rice-paper border border-primary/20 text-primary hover:bg-primary hover:text-rice-paper px-5 py-2.5 flex items-center text-sm ml-2">
+          <i class="fa fa-expand mr-2"></i> 全屏
         </button>
       </div>
       
@@ -425,7 +559,7 @@
         <h3 class="text-lg font-medium text-primary mb-4 flex items-center">
           <i class="fa fa-filter mr-2 text-accent"></i>筛选条件
         </h3>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <label class="block text-sm text-primary mb-2">地区</label>
             <select id="regionFilter" class="w-full px-3 py-2 bg-rice-paper border border-primary/20 rounded text-sm focus:outline-none focus:border-accent">
@@ -459,6 +593,10 @@
               <option value="winter">冬季 (12-2月)</option>
             </select>
           </div>
+          <div>
+            <label class="block text-sm text-primary mb-2">关键词</label>
+            <input id="keywordFilter" type="text" placeholder="路线名称或关键词" class="w-full px-3 py-2 bg-rice-paper border border-primary/20 rounded text-sm focus:outline-none focus:border-accent" />
+          </div>
         </div>
         <div class="mt-4 flex gap-3">
           <button id="applyFilter" class="japanese-button bg-accent text-white px-6 py-2 text-sm hover:bg-accent/90">
@@ -473,7 +611,47 @@
         </div>
       </div>
       
-      <div id="routeGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- 路线列表骨架屏 -->
+      <div id="routeSkeleton" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-2">
+        <div class="japanese-card p-5 skeleton">
+          <div class="skeleton-line h-5 w-2/3 mb-3"></div>
+          <div class="skeleton-line h-4 w-1/2 mb-2"></div>
+          <div class="skeleton-line h-3 w-3/4 mb-4"></div>
+          <div class="skeleton-line h-3 w-full"></div>
+        </div>
+        <div class="japanese-card p-5 skeleton">
+          <div class="skeleton-line h-5 w-2/3 mb-3"></div>
+          <div class="skeleton-line h-4 w-1/2 mb-2"></div>
+          <div class="skeleton-line h-3 w-3/4 mb-4"></div>
+          <div class="skeleton-line h-3 w-full"></div>
+        </div>
+        <div class="japanese-card p-5 skeleton">
+          <div class="skeleton-line h-5 w-2/3 mb-3"></div>
+          <div class="skeleton-line h-4 w-1/2 mb-2"></div>
+          <div class="skeleton-line h-3 w-3/4 mb-4"></div>
+          <div class="skeleton-line h-3 w-full"></div>
+        </div>
+        <div class="japanese-card p-5 skeleton">
+          <div class="skeleton-line h-5 w-2/3 mb-3"></div>
+          <div class="skeleton-line h-4 w-1/2 mb-2"></div>
+          <div class="skeleton-line h-3 w-3/4 mb-4"></div>
+          <div class="skeleton-line h-3 w-full"></div>
+        </div>
+        <div class="japanese-card p-5 skeleton">
+          <div class="skeleton-line h-5 w-2/3 mb-3"></div>
+          <div class="skeleton-line h-4 w-1/2 mb-2"></div>
+          <div class="skeleton-line h-3 w-3/4 mb-4"></div>
+          <div class="skeleton-line h-3 w-full"></div>
+        </div>
+        <div class="japanese-card p-5 skeleton">
+          <div class="skeleton-line h-5 w-2/3 mb-3"></div>
+          <div class="skeleton-line h-4 w-1/2 mb-2"></div>
+          <div class="skeleton-line h-3 w-3/4 mb-4"></div>
+          <div class="skeleton-line h-3 w-full"></div>
+        </div>
+      </div>
+
+      <div id="routeGrid" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <!-- 路线项将通过JS动态生成 -->
       </div>
       
@@ -486,17 +664,21 @@
   </main>
 
   <!-- 页脚 - 日式风格 -->
-  <footer class="bg-gradient-to-r from-ink-black via-primary to-sabi-gray text-rice-paper mt-16 py-8">
-    <div class="container mx-auto px-4 text-center">
-      <div class="mb-4">
-        <i class="fas fa-torii-gate text-2xl text-accent mb-2"></i>
-        <p class="text-lg font-japanese tracking-wide">与自然同在，心灵之旅</p>
-      </div>
-      <p class="text-sm opacity-80 mb-2">© 2023 日本山径指南 | 数据仅供参考，出发前请确认最新信息</p>
-      <div class="flex justify-center space-x-6 mt-4 text-sm">
-        <span class="flex items-center"><i class="fa fa-exclamation-triangle mr-2 text-accent"></i>安全第一</span>
-        <span class="flex items-center"><i class="fa fa-leaf mr-2 text-matcha-green"></i>自然保護</span>
-        <span class="flex items-center"><i class="fa fa-heart mr-2 text-sakura-pink"></i>感恩之心</span>
+  <footer class="mt-16 py-8">
+    <div class="mx-auto max-w-[1536px] px-4">
+      <div class="bg-gradient-to-r from-ink-black via-primary to-sabi-gray text-rice-paper rounded-lg shadow-lg overflow-hidden">
+        <div class="text-center px-4 py-8">
+          <div class="mb-4">
+            <i class="fas fa-torii-gate text-2xl text-accent mb-2"></i>
+            <p class="text-lg font-japanese tracking-wide">与自然同在，心灵之旅</p>
+          </div>
+          <p class="text-sm opacity-80 mb-2">© 2023 日本山径指南 | 数据仅供参考，出发前请确认最新信息</p>
+          <div class="flex justify-center space-x-6 mt-4 text-sm">
+            <span class="flex items-center"><i class="fa fa-exclamation-triangle mr-2 text-accent"></i>安全第一</span>
+            <span class="flex items-center"><i class="fa fa-leaf mr-2 text-matcha-green"></i>自然保護</span>
+            <span class="flex items-center"><i class="fa fa-heart mr-2 text-sakura-pink"></i>感恩之心</span>
+          </div>
+        </div>
       </div>
     </div>
   </footer>
@@ -533,12 +715,12 @@
       zoom: 5,
       tileLayers: [
         {
-          url: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles style by <a href="https://www.hotosm.org/" target="_blank">Humanitarian OpenStreetMap Team</a> hosted by <a href="https://openstreetmap.fr/" target="_blank">OpenStreetMap France</a>'
-        },
-        {
           url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        },
+        {
+          url: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles style by <a href="https://www.hotosm.org/" target="_blank">Humanitarian OpenStreetMap Team</a> hosted by <a href="https://openstreetmap.fr/" target="_blank">OpenStreetMap France</a>'
         },
         {
           url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
@@ -906,8 +1088,14 @@
         errorTileUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzljYTNhZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuWbvueJhzwvdGV4dD48L3N2Zz4='
       });
 
+      // 错误容忍与统计
+      let tileErrorCount = 0;
+      let tileRequestedCount = 0;
+      let tileRetryCount = 0;
+
       // 监听图层加载事件
       tileLayer.on('tileloadstart', function() {
+        tileRequestedCount++;
         document.getElementById('mapLoading').style.display = 'block';
       });
 
@@ -916,13 +1104,33 @@
       });
 
       tileLayer.on('tileerror', function() {
-        console.warn(`图层 ${layerIndex + 1} 加载失败，尝试下一个图层`);
-        map.removeLayer(tileLayer);
-        loadTileLayer(map, layerIndex + 1);
+        tileErrorCount++;
+        // 限制性的整体重绘重试（最多2次）
+        if (tileRetryCount < 2) {
+          tileRetryCount++;
+          setTimeout(() => tileLayer.redraw(), 800);
+          console.warn(`图层 ${layerIndex + 1} 单次瓦片错误，进行第 ${tileRetryCount} 次整体重绘重试`);
+          return;
+        }
+
+        const enoughSamples = tileRequestedCount >= 20;
+        const highErrorRate = (tileErrorCount / Math.max(tileRequestedCount, 1)) >= 0.4; // 错误率阈值40%
+        const tooManyErrors = tileErrorCount >= 10; // 绝对错误数阈值
+
+        if (tooManyErrors || (enoughSamples && highErrorRate)) {
+          console.warn(`图层 ${layerIndex + 1} 错误过多（${tileErrorCount}/${tileRequestedCount}），切换下一底图`);
+          map.removeLayer(tileLayer);
+          loadTileLayer(map, layerIndex + 1);
+        } else {
+          console.warn(`图层 ${layerIndex + 1} 瓦片错误累计 ${tileErrorCount}/${tileRequestedCount}，继续观察，不立即切换`);
+        }
       });
 
       // 尝试添加到地图
       tileLayer.addTo(map);
+      // 记录当前底图图层与索引
+      window.baseLayer = tileLayer;
+      window.currentBaseLayerIndex = layerIndex;
 
       // 延迟检查图层是否成功加载
       setTimeout(() => {
@@ -943,6 +1151,81 @@
           loadTileLayer(map, layerIndex + 1);
         }
       }, 2000);
+    }
+
+    // 切换底图函数（在已有地图实例上切换，不重置其他功能）
+    function switchBasemap(layerIndex) {
+      if (!window.map) return;
+      const config = mapConfig.tileLayers[layerIndex];
+      if (!config) return;
+
+      const loadingEl = document.getElementById('mapLoading');
+      if (loadingEl) loadingEl.style.display = 'block';
+
+      // 记录旧图层以便必要时回退
+      const oldLayer = window.baseLayer;
+      const oldIndex = window.currentBaseLayerIndex;
+      // 先不移除旧图层，避免在新图层失败时出现空白闪烁
+      if (oldLayer && window.map.hasLayer(oldLayer)) {
+        // 可选择先保留旧图层，待新层加载成功后再移除
+      }
+
+      const newLayer = L.tileLayer(config.url, {
+        maxZoom: 19,
+        attribution: config.attribution
+      });
+
+      // 错误容忍与统计
+      let tileErrorCount = 0;
+      let tileRequestedCount = 0;
+      let tileRetryCount = 0;
+
+      newLayer.on('tileloadstart', function() {
+        tileRequestedCount++;
+        if (loadingEl) loadingEl.style.display = 'block';
+      });
+      newLayer.on('load', function() {
+        if (loadingEl) loadingEl.style.display = 'none';
+        // 新图层加载成功后再移除旧图层
+        if (oldLayer && window.map.hasLayer(oldLayer)) {
+          window.map.removeLayer(oldLayer);
+        }
+      });
+      newLayer.on('tileerror', function() {
+        tileErrorCount++;
+        // 限制性的整体重绘重试（最多2次）
+        if (tileRetryCount < 2) {
+          tileRetryCount++;
+          setTimeout(() => newLayer.redraw(), 800);
+          console.warn(`切换底图时单次瓦片错误，进行第 ${tileRetryCount} 次整体重绘重试`);
+          return;
+        }
+
+        const enoughSamples = tileRequestedCount >= 20;
+        const highErrorRate = (tileErrorCount / Math.max(tileRequestedCount, 1)) >= 0.4;
+        const tooManyErrors = tileErrorCount >= 10;
+
+        if (tooManyErrors || (enoughSamples && highErrorRate)) {
+          console.warn(`新底图错误过多（${tileErrorCount}/${tileRequestedCount}），回退到之前底图`);
+          // 移除新图层并恢复旧图层
+          if (window.map.hasLayer(newLayer)) {
+            window.map.removeLayer(newLayer);
+          }
+          if (oldLayer) {
+            oldLayer.addTo(window.map);
+            window.baseLayer = oldLayer;
+            window.currentBaseLayerIndex = oldIndex;
+          }
+          if (loadingEl) loadingEl.style.display = 'none';
+        } else {
+          console.warn(`新底图错误累计 ${tileErrorCount}/${tileRequestedCount}，继续观察，不立即回退`);
+        }
+      });
+
+      newLayer.addTo(window.map);
+      window.baseLayer = newLayer;
+      window.currentBaseLayerIndex = layerIndex;
+      setTimeout(() => window.map.invalidateSize(), 200);
     }
 
     // 显示地图错误
@@ -1009,13 +1292,13 @@
         // 创建弹出窗口内容（扩大版）
         const popupContent = `
           <div class="p-4" style="min-width: 350px;">
-            <h3 class="font-bold text-primary text-xl mb-3">${route.name}</h3>
+            <h3 class="font-bold text-primary text-xl mb-3">${highlightText(route.name, currentKeyword)}</h3>
             <div class="space-y-2 text-base">
               <p><strong class="text-gray-700">地区：</strong>${route.region}（${route.location}）</p>
-              <p><strong class="text-gray-700">关键词：</strong>${route.keywords}</p>
+              <p><strong class="text-gray-700">关键词：</strong>${highlightText(route.keywords, currentKeyword)}</p>
               <p><strong class="text-gray-700">难度：</strong><span style="color: ${style.color}; font-weight: bold;">${route.difficulty}</span></p>
               <p><strong class="text-gray-700">最佳季节：</strong>${route.season}</p>
-              <p class="mt-3 text-gray-800 leading-relaxed">${route.description}</p>
+              <p class="mt-3 text-gray-800 leading-relaxed">${highlightText(route.description, currentKeyword)}</p>
             </div>
           </div>
         `;
@@ -1054,6 +1337,41 @@
         map.setView([36.2048, 138.2529], 5);
       });
 
+      // 底图切换事件绑定
+      const basemapSelect = document.getElementById('basemapSelect');
+      if (basemapSelect) {
+        basemapSelect.value = typeof window.currentBaseLayerIndex === 'number' ? String(window.currentBaseLayerIndex) : '0';
+        basemapSelect.addEventListener('change', (e) => {
+          const idx = parseInt(e.target.value, 10);
+          switchBasemap(idx);
+        });
+      }
+
+      // 全屏切换事件绑定
+      const fullscreenBtn = document.getElementById('toggleFullscreen');
+      const mapEl = document.getElementById('map');
+      if (fullscreenBtn && mapEl) {
+        fullscreenBtn.addEventListener('click', () => {
+          const isFullscreen = mapEl.classList.toggle('fullscreen-map');
+          // 切换按钮图标与文案
+          const icon = fullscreenBtn.querySelector('i');
+          const labelNode = fullscreenBtn.childNodes[1];
+          if (icon) icon.className = `fa ${isFullscreen ? 'fa-compress' : 'fa-expand'} mr-2`;
+          fullscreenBtn.lastChild.nodeValue = isFullscreen ? ' 退出全屏' : ' 全屏';
+          setTimeout(() => window.map && window.map.invalidateSize(), 150);
+        });
+        // 监听ESC退出
+        document.addEventListener('keydown', (ev) => {
+          if (ev.key === 'Escape' && mapEl.classList.contains('fullscreen-map')) {
+            mapEl.classList.remove('fullscreen-map');
+            const icon = fullscreenBtn.querySelector('i');
+            if (icon) icon.className = 'fa fa-expand mr-2';
+            fullscreenBtn.lastChild.nodeValue = ' 全屏';
+            setTimeout(() => window.map && window.map.invalidateSize(), 150);
+          }
+        });
+      }
+
       // 响应式调整
       window.addEventListener('resize', () => {
         map.invalidateSize();
@@ -1071,11 +1389,37 @@
     // 筛选功能
     let filteredRoutes = [...hikingRoutes];
     let markers = [];
+    let currentKeyword = '';
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function highlightText(text, keyword) {
+      if (!text) return '';
+      const safeText = escapeHtml(text);
+      const kw = (keyword || '').trim();
+      if (!kw) return safeText;
+      try {
+        const regex = new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+        return safeText.replace(regex, match => `<span style="background-color: rgba(197, 112, 93, 0.15); color: #C5705D; font-weight: 500;">${match}</span>`);
+      } catch (_) {
+        return safeText;
+      }
+    }
 
     function applyFilters() {
       const regionFilter = document.getElementById('regionFilter').value;
       const difficultyFilter = document.getElementById('difficultyFilter').value;
       const seasonFilter = document.getElementById('seasonFilter').value;
+      const keywordInput = document.getElementById('keywordFilter');
+      currentKeyword = keywordInput ? (keywordInput.value || '').trim() : '';
 
       filteredRoutes = hikingRoutes.filter(route => {
         // 地区筛选
@@ -1093,6 +1437,17 @@
           return false;
         }
         
+        // 关键词筛选（名称、关键词、描述）
+        if (currentKeyword) {
+          const kw = currentKeyword.toLowerCase();
+          const nameMatch = (route.name || '').toLowerCase().includes(kw);
+          const keywordsMatch = (route.keywords || '').toLowerCase().includes(kw);
+          const descMatch = (route.description || '').toLowerCase().includes(kw);
+          if (!(nameMatch || keywordsMatch || descMatch)) {
+            return false;
+          }
+        }
+        
         return true;
       });
 
@@ -1100,6 +1455,48 @@
       updateRouteMarkers();
       updateFilterCount();
     }
+
+    // 结构化数据（JSON-LD）：ItemList + HikingTrail（基于现有hikingRoutes生成）
+    (function injectStructuredData() {
+      try {
+        if (!Array.isArray(hikingRoutes) || hikingRoutes.length === 0) return;
+        const baseUrl = window.location.origin + window.location.pathname;
+        const itemList = {
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          "name": "日本十大经典徒步路线",
+          "itemListElement": hikingRoutes.map((route, idx) => ({
+            "@type": "ListItem",
+            "position": idx + 1,
+            "url": baseUrl + "#route-" + route.id
+          }))
+        };
+        const trails = hikingRoutes.map(route => ({
+          "@context": "https://schema.org",
+          "@type": "HikingTrail",
+          "name": route.name,
+          "description": route.description,
+          "areaServed": route.region,
+          "keywords": route.keywords,
+          "additionalProperty": [
+            { "@type": "PropertyValue", "name": "difficulty", "value": route.difficultyLevel },
+            { "@type": "PropertyValue", "name": "season", "value": route.season }
+          ],
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": route.coordinates[0],
+            "longitude": route.coordinates[1]
+          }
+        }));
+        const payload = JSON.stringify([itemList, ...trails]);
+        const script = document.createElement('script');
+        script.type = 'application/ld+json';
+        script.textContent = payload;
+        document.head.appendChild(script);
+      } catch (e) {
+        console.warn('JSON-LD 注入失败', e);
+      }
+    })();
 
     function clearFilters() {
       document.getElementById('regionFilter').value = '';
@@ -1124,32 +1521,38 @@
     function renderRouteGrid() {
       const routeGrid = document.getElementById('routeGrid');
       const noResults = document.getElementById('noResults');
+      const skeleton = document.getElementById('routeSkeleton');
       
       if (!routeGrid) return;
       
       if (filteredRoutes.length === 0) {
         routeGrid.innerHTML = '';
+        if (skeleton) skeleton.classList.add('hidden');
         if (noResults) noResults.classList.remove('hidden');
         return;
       }
       
+      if (skeleton) skeleton.classList.add('hidden');
+      routeGrid.classList.remove('hidden');
       if (noResults) noResults.classList.add('hidden');
       
       routeGrid.innerHTML = filteredRoutes.map(route => `
-        <div class="japanese-card p-5 hover:shadow-lg transition-all duration-300 cursor-pointer border border-primary/10 hover:border-accent/50" 
+        <div id="route-${route.id}" class="japanese-card p-5 hover:shadow-lg transition-all duration-300 cursor-pointer border border-primary/10 hover:border-accent/50" 
              onclick="focusOnRoute(${route.id})" data-route-id="${route.id}">
           <div class="flex justify-between items-start mb-3">
-            <h3 class="font-japanese font-medium text-primary text-base leading-tight">${route.name}</h3>
-            <span class="text-xs px-2 py-1 rounded-full ${getDifficultyColorClass(route.difficultyLevel)} text-white">${route.difficulty}</span>
+            <h3 class="font-japanese font-medium text-primary text-base leading-tight">
+              <a href="#route-${route.id}" class="no-underline text-primary hover:text-accent" aria-label="查看路线：${route.name}">${highlightText(route.name, currentKeyword)}</a>
+            </h3>
+          <span class="text-xs px-2 py-1 rounded-full ${getDifficultyColorClass(route.difficultyLevel)} text-white">${route.difficulty}</span>
           </div>
           <p class="text-sm text-sabi-gray mb-2"><i class="fa fa-map-marker-alt mr-2 text-accent"></i>${route.location}</p>
-          <p class="text-xs text-primary/70 mb-3">${route.keywords}</p>
+          <p class="text-xs text-primary/70 mb-3">${highlightText(route.keywords, currentKeyword)}</p>
           <div class="flex justify-between items-center text-xs text-sabi-gray mb-3">
             <span><i class="fa fa-clock mr-1"></i>${route.duration}</span>
             <span><i class="fa fa-calendar mr-1"></i>${route.season}</span>
           </div>
           <div class="flex justify-between items-center">
-            <div class="text-xs text-primary/80 leading-relaxed flex-1">${route.description}</div>
+            <div class="text-xs text-primary/80 leading-relaxed flex-1">${highlightText(route.description, currentKeyword)}</div>
             <button onclick="event.stopPropagation(); clearCurrentRoute();" 
                     class="ml-2 px-2 py-1 text-xs bg-gray-200 hover:bg-gray-300 rounded transition-colors duration-200" 
                     title="清除路线显示">
@@ -1292,7 +1695,7 @@
             lineCap: 'round',
             lineJoin: 'round',
             smoothFactor: 1.0,
-            className: 'hiking-route-path'
+            className: 'hiking-route-path route-breathing'
           }).addTo(window.map);
           
           // 添加路线高亮效果
@@ -1517,13 +1920,13 @@
         // 创建弹出窗口内容
         const popupContent = `
           <div class="p-4" style="min-width: 350px;">
-            <h3 class="font-bold text-primary text-xl mb-3">${route.name}</h3>
+            <h3 class="font-bold text-primary text-xl mb-3">${highlightText(route.name, currentKeyword)}</h3>
             <div class="space-y-2 text-base">
               <p><strong class="text-gray-700">地区：</strong>${route.region}（${route.location}）</p>
-              <p><strong class="text-gray-700">关键词：</strong>${route.keywords}</p>
+              <p><strong class="text-gray-700">关键词：</strong>${highlightText(route.keywords, currentKeyword)}</p>
               <p><strong class="text-gray-700">难度：</strong><span style="color: ${style.color}; font-weight: bold;">${route.difficulty}</span></p>
               <p><strong class="text-gray-700">最佳季节：</strong>${route.season}</p>
-              <p class="mt-3 text-gray-800 leading-relaxed">${route.description}</p>
+              <p class="mt-3 text-gray-800 leading-relaxed">${highlightText(route.description, currentKeyword)}</p>
             </div>
           </div>
         `;
@@ -1541,6 +1944,7 @@
     function initializeFilters() {
       const applyFilterBtn = document.getElementById('applyFilter');
       const clearFilterBtn = document.getElementById('clearFilter');
+      const keywordInput = document.getElementById('keywordFilter');
       
       if (applyFilterBtn) {
         applyFilterBtn.addEventListener('click', applyFilters);
@@ -1548,6 +1952,10 @@
       
       if (clearFilterBtn) {
         clearFilterBtn.addEventListener('click', clearFilters);
+      }
+      
+      if (keywordInput) {
+        keywordInput.addEventListener('input', applyFilters);
       }
       
       // 初始化筛选计数
@@ -1684,6 +2092,41 @@
       transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
       transition-duration: 300ms;
     }
+
+    /* 控制栏玻璃拟态样式 */
+    .glass-controlbar {
+      background: rgba(249, 247, 241, 0.75);
+      border: 1px solid rgba(139, 115, 85, 0.12);
+      box-shadow: 0 6px 24px rgba(139, 115, 85, 0.12);
+      backdrop-filter: blur(10px);
+    }
+
+    /* Skeleton 骨架屏与闪烁动画 */
+    .skeleton { position: relative; overflow: hidden; }
+    .skeleton-line {
+      background: linear-gradient(90deg, rgba(0,0,0,0.06) 25%, rgba(0,0,0,0.12) 37%, rgba(0,0,0,0.06) 63%);
+      background-size: 400% 100%;
+      border-radius: 3px;
+      animation: shimmer 1.4s ease-in-out infinite;
+    }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+    /* 卡片微交互升级 */
+    .japanese-card { transition: transform 0.2s ease, box-shadow 0.25s ease, border-color 0.25s ease; }
+    .japanese-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(139, 115, 85, 0.16); border-color: rgba(197, 112, 93, 0.35); }
+    .japanese-card:active { transform: translateY(0) scale(0.98); box-shadow: 0 4px 16px rgba(139, 115, 85, 0.14); }
+
+    /* 路线呼吸光晕 */
+    .route-breathing { animation: glowPulse 3s ease-in-out infinite; }
+    @keyframes glowPulse {
+      0%   { filter: drop-shadow(0 0 4px rgba(255,255,255,0.3)); }
+      50%  { filter: drop-shadow(0 0 10px rgba(255,255,255,0.6)); }
+      100% { filter: drop-shadow(0 0 4px rgba(255,255,255,0.3)); }
+    }
+
+    /* 起终点标签轻微缩放 */
+    .route-tooltip { transition: transform 0.2s ease; animation: labelPulse 2.4s ease-in-out infinite; }
+    @keyframes labelPulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
   </style>
 </body>
 </html>
