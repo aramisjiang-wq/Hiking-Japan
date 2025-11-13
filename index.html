@@ -36,6 +36,11 @@
   <!-- 引入Granim.js库 - 渐变动画 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/granim/2.0.0/granim.min.js"></script>
   
+  <!-- 引入 Embla Carousel - 轻量轮播组件 -->
+  <script src="https://unpkg.com/embla-carousel@8.0.0/embla-carousel.umd.js"></script>
+  <!-- 引入 Embla Autoplay 插件 -->
+  <script src="https://unpkg.com/embla-carousel-autoplay@8.0.0/embla-carousel-autoplay.umd.js"></script>
+  
   <!-- Vercel Analytics -->
   <script defer src="https://cdn.vercel-insights.com/v1/script.js"></script>
   
@@ -45,19 +50,19 @@
       theme: {
         extend: {
           colors: {
-            // 日式侘寂风格配色
-            primary: '#8B7355', // 枯山水砂石色 - 主色调
-            secondary: '#A8B5A0', // 苔绿色 - 辅助色
-            accent: '#C5705D', // 锈红色 - 强调色
-            light: '#F5F2E8', // 和纸米白色 - 背景色
-            dark: '#4A4A4A', // 墨灰色 - 深色文字
-            // 和风传统色彩
-            'wabi-beige': '#D4C5A0', // 侘寂米色
-            'sabi-gray': '#8A8A8A', // 寂灰
-            'matcha-green': '#A8B5A0', // 抹茶绿
-            'sakura-pink': '#F4C2C2', // 樱花粉（点缀用）
-            'ink-black': '#2C2C2C', // 墨黑色
-            'rice-paper': '#F9F7F1', // 和纸色
+            // 山林雾绿配色（保持结构与尺寸不变，仅更新色值）
+            primary: '#2F5D50', // 常青深绿 - 主色调
+            secondary: '#86A38A', // 苔绿 - 辅助/次强调
+            accent: '#86A38A', // 强调色统一为苔绿
+            light: '#F7F9F6', // 雾绿背景
+            dark: '#243026', // 深林墨绿 - 主文本
+            // 传统色彩映射更新
+            'wabi-beige': '#DDE4DC', // 作为柔和分割线色
+            'sabi-gray': '#5B6A5F', // 雾绿灰 - 次级文本
+            'matcha-green': '#86A38A', // 抹茶绿 - 与accent一致
+            'sakura-pink': '#F4C2C2', // 保留
+            'ink-black': '#2C2C2C', // 保留
+            'rice-paper': '#FFFFFF', // 表层白
           },
           fontFamily: {
             sans: ['Noto Sans JP', 'Noto Sans SC', 'sans-serif'],
@@ -86,11 +91,11 @@
         height: 80vh;
         min-height: 800px;
         position: relative;
-        background-color: #F5F2E8;
+        background-color: #F7F9F6;
         width: 100%;
         margin: 0 auto;
         border-radius: 3px; /* 侘寂风格小圆角 */
-        box-shadow: 0 8px 32px rgba(139, 115, 85, 0.15); /* 柔和的阴影 */
+        box-shadow: 0 8px 32px rgba(47, 93, 80, 0.15); /* 柔和的阴影（雾绿） */
       }
       @media (max-width: 1200px) {
         .map-container {
@@ -181,7 +186,7 @@
       .custom-popup .leaflet-popup-content-wrapper {
         border-radius: 3px;
         box-shadow: 0 8px 24px rgba(139, 115, 85, 0.2);
-        background: rgba(249, 247, 241, 0.98);
+        background: #FFFFFF;
         border: 1px solid rgba(139, 115, 85, 0.1);
       }
       .custom-popup .leaflet-popup-content {
@@ -206,7 +211,7 @@
       }
       /* 日式卡片样式 */
       .japanese-card {
-        background: rgba(249, 247, 241, 0.8);
+        background: rgba(255, 255, 255, 0.80);
         border-radius: 3px;
         box-shadow: 0 4px 16px rgba(139, 115, 85, 0.1);
         border: 1px solid rgba(139, 115, 85, 0.05);
@@ -330,6 +335,15 @@
         background: linear-gradient(180deg, rgba(20,24,20,0.25) 0%, rgba(20,24,20,0.08) 60%);
         pointer-events: none;
       }
+      /* 季节色调覆盖层（通过CSS变量控制） */
+      .photo-banner-box::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: var(--season-tint, transparent);
+        pointer-events: none;
+        transition: background 200ms ease;
+      }
       @media (max-width: 768px) {
         .photo-banner-box { min-height: 30vh; }
       }
@@ -388,13 +402,40 @@
         .hanko-text { font-size: 18px; }
       }
       .banner-card {
-        background: rgba(249, 247, 241, 0.72);
-        border: 1px solid rgba(139, 115, 85, 0.12);
+        background: rgba(255, 255, 255, 0.78);
+        border: 1px solid rgba(47, 93, 80, 0.12);
         backdrop-filter: blur(8px);
         border-radius: 6px;
-        box-shadow: 0 10px 24px rgba(139, 115, 85, 0.18);
+        box-shadow: 0 10px 24px rgba(47, 93, 80, 0.18);
         max-width: 900px;
         z-index: 1;
+      }
+      /* Embla Carousel 基础样式 */
+      .embla { position: relative; }
+      .embla__viewport { overflow: hidden; }
+      .embla__container { display: flex; gap: 16px; }
+      .embla__slide { flex: 0 0 86%; }
+      @media (min-width: 768px) { .embla__slide { flex: 0 0 66%; } }
+      @media (min-width: 1024px) { .embla__slide { flex: 0 0 60%; } }
+      .embla__nav { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
+      .embla__button { border: 1px solid rgba(47,93,80,0.18); background: rgba(255,255,255,0.85); color: #2F5D50; padding: 8px 12px; border-radius: 6px; cursor: pointer; box-shadow: 0 2px 8px rgba(47,93,80,0.10); }
+      .embla__button:hover { border-color: rgba(47,93,80,0.45); color: #2F5D50; box-shadow: 0 4px 16px rgba(47,93,80,0.16); }
+      .embla__dots { display: flex; gap: 8px; align-items: center; }
+      .embla__dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(47,93,80,0.25); cursor: pointer; }
+      .embla__dot[aria-current="true"] { background: rgba(47,93,80,0.85); }
+      /* 连续滚动（Ticker）模式压缩与可读性优化 */
+      .embla .japanese-card { padding: 12px; }
+      .embla .japanese-card h3 { font-size: 14px; line-height: 1.4; }
+      .embla .japanese-card p { margin-bottom: 6px; }
+      .embla .japanese-card p[class*="text-primary/80"] {
+        font-size: 12px; line-height: 1.5;
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      @media (max-width: 768px) {
+        .embla .japanese-card { padding: 10px; }
+        .embla .japanese-card h3 { font-size: 13px; }
+        .embla .japanese-card p[class*="text-primary/80"] { -webkit-line-clamp: 2; }
       }
       .font-serif-jp {
         font-family: 'Noto Serif JP', serif;
@@ -405,6 +446,32 @@
           animation: none !important;
         }
       }
+
+      /* 季节时间轴选择器样式 */
+      .season-switcher { display: flex; gap: 8px; }
+      .season-option {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        font-size: 14px;
+        border-radius: 6px;
+        border: 1px solid rgba(139, 115, 85, 0.18);
+        background: rgba(255, 255, 255, 0.72);
+        backdrop-filter: blur(6px);
+        color: #334155;
+        cursor: pointer;
+        transition: all 160ms ease;
+      }
+      .season-option:hover { border-color: rgba(197, 112, 93, 0.5); color: #C5705D; }
+      .season-option[aria-pressed="true"] {
+        background: rgba(197, 112, 93, 0.14);
+        border-color: rgba(197, 112, 93, 0.6);
+      color: #2F5D50;
+        box-shadow: 0 4px 12px rgba(139, 115, 85, 0.18);
+      }
+      /* 页面背景：高级暖白 */
+      body.bg-light { background-color: #F7F9F6; }
       
 
       
@@ -489,6 +556,26 @@
       </div>
     </div>
   </header>
+  
+  <!-- 季节精选路线 · 走马灯模块 -->
+  <section id="seasonCarouselSection" class="mx-auto max-w-[1536px] px-4 mt-8" aria-label="季节精选路线">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-xl font-semibold text-primary">季节精选路线</h2>
+      <div class="text-xs text-sabi-gray">轻滑浏览每季代表路线</div>
+    </div>
+    <div id="emblaSeason" class="embla">
+      <div class="embla__viewport">
+        <div id="emblaSeasonContainer" class="embla__container">
+          <!-- Slides 将由脚本基于 hikingRoutes 动态注入 -->
+        </div>
+      </div>
+      <div class="embla__nav">
+        <button id="emblaPrev" class="embla__button japanese-button text-sm" aria-label="上一张"><i class="fa fa-chevron-left mr-1"></i> 上一张</button>
+        <button id="emblaToggleAutoplay" class="embla__button japanese-button text-sm" aria-label="暂停自动播放">暂停</button>
+        <button id="emblaNext" class="embla__button japanese-button text-sm" aria-label="下一张">下一张 <i class="fa fa-chevron-right ml-1"></i></button>
+      </div>
+    </div>
+  </section>
 
   <!-- 主要内容区 -->
   <main class="container mx-auto px-4 py-6" style="max-width: 1536px;"> <!-- 统一主容器最大宽度为 Tailwind 默认 -->
@@ -527,6 +614,45 @@
         <span class="inline-flex items-center px-4 py-2 japanese-card text-sm">
           <span class="w-3 h-3 rounded-full bg-sabi-gray mr-3"></span>高级者 (★★★)
         </span>
+      </div>
+    </div>
+    
+    <!-- 季节时间轴选择器（玻璃卡） -->
+    <div id="seasonSwitchCard" class="japanese-card mb-6 p-4 bg-rice-paper/60 border border-primary/10" role="group" aria-label="季节时间轴选择器">
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <i class="fa fa-calendar-o text-accent"></i>
+          <span class="text-sm text-primary/80">季节选择：</span>
+        </div>
+        <div class="flex flex-1 justify-center gap-2 season-switcher" aria-label="四季分段">
+          <button class="season-option" data-season="all" aria-pressed="false" aria-label="全部季节" title="全部季节">
+            <i class="fa fa-circle-o text-primary"></i>
+            <span>全部</span>
+          </button>
+          <button class="season-option" data-season="spring" aria-pressed="false" aria-label="春季（3-5月）" title="春季（3-5月）">
+            <i class="fa fa-leaf text-matcha-green"></i>
+            <span>春季</span>
+            <span class="text-xs opacity-70">3-5月</span>
+          </button>
+          <button class="season-option" data-season="summer" aria-pressed="false" aria-label="夏季（6-8月）" title="夏季（6-8月）">
+            <i class="fa fa-sun-o text-yellow-600"></i>
+            <span>夏季</span>
+            <span class="text-xs opacity-70">6-8月</span>
+          </button>
+          <button class="season-option" data-season="autumn" aria-pressed="false" aria-label="秋季（9-11月）" title="秋季（9-11月）">
+            <i class="fa fa-cloud text-amber-700"></i>
+            <span>秋季</span>
+            <span class="text-xs opacity-70">9-11月</span>
+          </button>
+          <button class="season-option" data-season="winter" aria-pressed="false" aria-label="冬季（12-2月）" title="冬季（12-2月）">
+            <i class="fa fa-snowflake-o text-sabi-gray"></i>
+            <span>冬季</span>
+            <span class="text-xs opacity-70">12-2月</span>
+          </button>
+        </div>
+        <div class="hidden md:block text-xs text-gray-600">
+          当前：<span id="currentSeasonLabel">—</span>
+        </div>
       </div>
     </div>
     
@@ -998,6 +1124,139 @@
       initializeMap();
     });
 
+    // 初始化季节精选 Embla 轮播
+    function initSeasonEmbla() {
+      try {
+        const container = document.getElementById('emblaSeasonContainer');
+        const dotsRoot = document.getElementById('emblaSeasonDots');
+        const prevBtn = document.getElementById('emblaPrev');
+        const nextBtn = document.getElementById('emblaNext');
+        const toggleBtn = document.getElementById('emblaToggleAutoplay');
+        const viewport = document.querySelector('#emblaSeason .embla__viewport');
+        if (!container || !viewport) return;
+
+        // 选取6条代表路线（优先按季节代码完整性）
+        const picks = (Array.isArray(hikingRoutes) ? hikingRoutes.slice(0, 6) : []);
+
+        // 构建Slides
+        container.innerHTML = picks.map(route => `
+          <div class="embla__slide">
+            <div class="japanese-card border border-primary/10 p-4">
+              <div class="flex justify-between items-start mb-2">
+                <h3 class="font-japanese font-medium text-primary text-base leading-tight">${route.name}</h3>
+                <span class="text-xs px-2 py-1 rounded-full ${getDifficultyColorClass(route.difficultyLevel)} text-white">${route.difficulty}</span>
+              </div>
+              <p class="text-sm text-sabi-gray mb-2"><i class="fa fa-map-marker-alt mr-2 text-accent"></i>${route.region}（${route.location}）</p>
+              <p class="text-xs text-primary/70 mb-3"><i class="fa fa-calendar mr-2"></i>${route.season}</p>
+              <p class="text-sm text-primary/80 leading-relaxed mb-3">${route.description}</p>
+              <div class="flex justify-between items-center">
+                <button class="japanese-button bg-accent text-white px-4 py-1.5 text-xs hover:bg-accent/90" onclick="focusOnRoute(${route.id})">查看详情</button>
+                <a class="text-xs text-accent hover:underline" href="#route-${route.id}">跳转到列表</a>
+              </div>
+            </div>
+          </div>
+        `).join('');
+
+        // 切换为连续缓慢滚动（Ticker 模式）
+        const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const isMobile = window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+        const containerEl = document.querySelector('#emblaSeason .embla__container');
+        if (!containerEl) return;
+
+        // 为无缝循环复制一份内容
+        const originalChildrenCount = containerEl.children.length;
+        containerEl.innerHTML += containerEl.innerHTML;
+
+        // 计算单份内容宽度
+        let setWidth = 0;
+        function computeSetWidth() {
+          setWidth = 0;
+          for (let i = 0; i < originalChildrenCount; i++) {
+            setWidth += containerEl.children[i].getBoundingClientRect().width + 16; // gap 16px
+          }
+        }
+        computeSetWidth();
+        window.addEventListener('resize', computeSetWidth);
+
+        // Ticker 状态
+        let baseSpeed = isMobile ? 16 : 24; // px/s
+        let speed = baseSpeed;
+        let offset = 0;
+        let isRunning = !reduceMotion;
+        let rafId = null;
+        let lastTs = null;
+        containerEl.style.willChange = 'transform';
+
+        function step(ts) {
+          if (!isRunning) { cancelAnimationFrame(rafId); rafId = null; return; }
+          if (lastTs == null) lastTs = ts;
+          const dt = (ts - lastTs) / 1000;
+          lastTs = ts;
+          offset += speed * dt;
+          if (offset >= setWidth) offset -= setWidth;
+          containerEl.style.transform = `translate3d(${-offset}px,0,0)`;
+          rafId = requestAnimationFrame(step);
+        }
+        function start() { if (rafId == null) { lastTs = null; rafId = requestAnimationFrame(step); } }
+        function stop() { if (rafId != null) { cancelAnimationFrame(rafId); rafId = null; } }
+        if (isRunning) start(); else { stop(); containerEl.style.transform = 'translate3d(0,0,0)'; }
+
+        // 悬停暂停与离开恢复
+        viewport.addEventListener('mouseenter', () => { isRunning = false; stop(); updateToggleUI(); });
+        viewport.addEventListener('mouseleave', () => { if (!reduceMotion) { isRunning = true; start(); updateToggleUI(); } });
+
+        // 可见性变化处理
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'hidden') { isRunning = false; stop(); }
+          else if (!reduceMotion) { isRunning = true; start(); }
+          updateToggleUI();
+        });
+
+        // 箭头：轻微加速一段时间
+        const boostMs = 1200;
+        function boost() {
+          const prev = speed;
+          speed = baseSpeed * 2;
+          setTimeout(() => { speed = prev; }, boostMs);
+        }
+        if (prevBtn) prevBtn.addEventListener('click', () => { boost(); });
+        if (nextBtn) nextBtn.addEventListener('click', () => { boost(); });
+
+        // 切换按钮
+        function updateToggleUI() {
+          if (!toggleBtn) return;
+          if (reduceMotion) {
+            toggleBtn.textContent = '已暂停';
+            toggleBtn.setAttribute('aria-label', '连续滚动在减少动画模式下已停用');
+            toggleBtn.disabled = true;
+            return;
+          }
+          if (isRunning) {
+            toggleBtn.textContent = '暂停';
+            toggleBtn.setAttribute('aria-label', '暂停连续滚动');
+          } else {
+            toggleBtn.textContent = '继续';
+            toggleBtn.setAttribute('aria-label', '继续连续滚动');
+          }
+        }
+        updateToggleUI();
+        if (toggleBtn) {
+          toggleBtn.addEventListener('click', () => {
+            isRunning = !isRunning;
+            if (isRunning) start(); else stop();
+            updateToggleUI();
+          });
+        }
+      } catch (e) {
+        console.warn('Embla 初始化失败', e);
+      }
+    }
+
+    // 页面加载完成后初始化季节轮播
+    document.addEventListener('DOMContentLoaded', function() {
+      initSeasonEmbla();
+    });
+
     // 初始化地图函数
     function initializeMap() {
       try {
@@ -1390,6 +1649,117 @@
     let filteredRoutes = [...hikingRoutes];
     let markers = [];
     let currentKeyword = '';
+    let currentSeason = null;
+
+    const SEASON_TINTS = {
+      spring: 'rgba(118, 200, 147, 0.15)',
+      summer: 'rgba(74, 163, 216, 0.15)',
+      autumn: 'rgba(208, 135, 112, 0.15)',
+      winter: 'rgba(154, 167, 176, 0.15)'
+    };
+
+    const SEASON_LABELS = {
+      spring: '春季（3-5月）',
+      summer: '夏季（6-8月）',
+      autumn: '秋季（9-11月）',
+      winter: '冬季（12-2月）'
+    };
+
+    function getSeasonByMonth(m) {
+      if (m >= 3 && m <= 5) return 'spring';
+      if (m >= 6 && m <= 8) return 'summer';
+      if (m >= 9 && m <= 11) return 'autumn';
+      return 'winter';
+    }
+
+    function updateBannerTint(season) {
+      const banner = document.querySelector('.photo-banner-box');
+      if (!banner) return;
+      const tint = season && SEASON_TINTS[season] ? SEASON_TINTS[season] : 'transparent';
+      banner.style.setProperty('--season-tint', tint);
+    }
+
+    function updateSeasonUIActive(season) {
+      const buttons = document.querySelectorAll('#seasonSwitchCard .season-option');
+      buttons.forEach(btn => {
+        const ds = btn.getAttribute('data-season');
+        const isActive = season ? (ds === season) : (ds === 'all');
+        btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+      });
+      const label = document.getElementById('currentSeasonLabel');
+      if (label) label.textContent = season ? SEASON_LABELS[season] : '全部';
+    }
+
+    function setSeason(season, { persist = true } = {}) {
+      currentSeason = season || null;
+      const select = document.getElementById('seasonFilter');
+      if (select) select.value = season || '';
+      updateSeasonUIActive(currentSeason);
+      updateBannerTint(currentSeason);
+      if (persist && currentSeason) {
+        try { localStorage.setItem('preferredSeason', currentSeason); } catch (_) {}
+      }
+      applyFilters();
+    }
+
+    function clearSeasonSelection() {
+      currentSeason = null;
+      const select = document.getElementById('seasonFilter');
+      if (select) select.value = '';
+      updateSeasonUIActive(null);
+      updateBannerTint(null);
+    }
+
+    function initializeSeasonControls() {
+      const container = document.getElementById('seasonSwitchCard');
+      const select = document.getElementById('seasonFilter');
+      if (container) {
+        container.addEventListener('click', (e) => {
+          const btn = e.target.closest('.season-option');
+          if (btn && btn.dataset.season) {
+            if (btn.dataset.season === 'all') {
+              clearSeasonSelection();
+              applyFilters();
+            } else {
+              setSeason(btn.dataset.season);
+            }
+          }
+        });
+        container.addEventListener('keydown', (e) => {
+          const order = ['spring','summer','autumn','winter'];
+          if (!['ArrowLeft','ArrowRight'].includes(e.key)) return;
+          e.preventDefault();
+          const idx = currentSeason ? order.indexOf(currentSeason) : -1;
+          const nextIdx = e.key === 'ArrowRight'
+            ? (idx + 1 >= order.length ? 0 : idx + 1)
+            : (idx - 1 < 0 ? order.length - 1 : idx - 1);
+          setSeason(order[nextIdx]);
+        });
+        // 设置tab聚焦
+        container.tabIndex = 0;
+      }
+      if (select) {
+        select.addEventListener('change', (e) => {
+          const val = e.target.value;
+          if (!val) {
+            clearSeasonSelection();
+            applyFilters();
+          } else {
+            setSeason(val);
+          }
+        });
+      }
+
+      // 默认季节：优先本地偏好，其次当前月份
+      try {
+        const saved = localStorage.getItem('preferredSeason');
+        const valid = ['spring','summer','autumn','winter'];
+        const initial = saved && valid.includes(saved) ? saved : getSeasonByMonth(new Date().getMonth() + 1);
+        setSeason(initial, { persist: false });
+      } catch (_) {
+        setSeason(getSeasonByMonth(new Date().getMonth() + 1), { persist: false });
+      }
+    }
 
     function escapeHtml(str) {
       if (!str) return '';
@@ -1408,7 +1778,7 @@
       if (!kw) return safeText;
       try {
         const regex = new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
-        return safeText.replace(regex, match => `<span style="background-color: rgba(197, 112, 93, 0.15); color: #C5705D; font-weight: 500;">${match}</span>`);
+    return safeText.replace(regex, match => `<span style="background-color: rgba(134, 163, 138, 0.20); color: #2F5D50; font-weight: 500;">${match}</span>`);
       } catch (_) {
         return safeText;
       }
@@ -1502,6 +1872,7 @@
       document.getElementById('regionFilter').value = '';
       document.getElementById('difficultyFilter').value = '';
       document.getElementById('seasonFilter').value = '';
+      clearSeasonSelection();
       
       filteredRoutes = [...hikingRoutes];
       renderRouteGrid();
@@ -1893,16 +2264,20 @@
       };
       
       // 添加筛选后的标记
+      const seasonSelectVal = (document.getElementById('seasonFilter') && document.getElementById('seasonFilter').value) || '';
+      const shouldDimBySeason = !seasonSelectVal && !!currentSeason;
       filteredRoutes.forEach(route => {
         const style = difficultyStyles[route.difficultyLevel];
+        const isSeasonMatch = shouldDimBySeason ? (Array.isArray(route.seasonCodes) && route.seasonCodes.includes(currentSeason)) : true;
+        const dimStyle = !isSeasonMatch ? 'opacity:0.35; filter: grayscale(40%);' : '';
         
         // 创建带名称的自定义图标
         const customIcon = L.divIcon({
           className: 'custom-map-marker',
           html: `
             <div style="display: flex; flex-direction: column; align-items: center;">
-              <div style="background-color: ${style.color}; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 0 3px ${style.color}; cursor: pointer;"></div>
-              <div class="route-label" style="background-color: ${style.bgColor}; color: ${style.textColor}; margin-top: 8px; padding: 4px 8px; font-size: 14px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">${route.name}</div>
+              <div style="background-color: ${style.color}; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 0 3px ${style.color}; cursor: pointer; ${dimStyle}"></div>
+              <div class="route-label" style="background-color: ${style.bgColor}; color: ${style.textColor}; margin-top: 8px; padding: 4px 8px; font-size: 14px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); ${dimStyle}">${route.name}</div>
             </div>
           `,
           iconSize: [160, 60],
@@ -1945,6 +2320,7 @@
       const applyFilterBtn = document.getElementById('applyFilter');
       const clearFilterBtn = document.getElementById('clearFilter');
       const keywordInput = document.getElementById('keywordFilter');
+      const seasonSelect = document.getElementById('seasonFilter');
       
       if (applyFilterBtn) {
         applyFilterBtn.addEventListener('click', applyFilters);
@@ -1958,11 +2334,21 @@
         keywordInput.addEventListener('input', applyFilters);
       }
       
+      if (seasonSelect) {
+        seasonSelect.addEventListener('change', () => {
+          const val = seasonSelect.value;
+          if (!val) { clearSeasonSelection(); applyFilters(); }
+        });
+      }
+      
       // 初始化筛选计数
       updateFilterCount();
       
       // 初始渲染路线网格
       renderRouteGrid();
+
+      // 初始化季节选择器与默认季节
+      initializeSeasonControls();
     }
   </script>
   
@@ -2094,10 +2480,10 @@
     }
 
     /* 控制栏玻璃拟态样式 */
-    .glass-controlbar {
-      background: rgba(249, 247, 241, 0.75);
-      border: 1px solid rgba(139, 115, 85, 0.12);
-      box-shadow: 0 6px 24px rgba(139, 115, 85, 0.12);
+      .glass-controlbar {
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(47, 93, 80, 0.12);
+      box-shadow: 0 6px 24px rgba(47, 93, 80, 0.12);
       backdrop-filter: blur(10px);
     }
 
@@ -2113,8 +2499,8 @@
 
     /* 卡片微交互升级 */
     .japanese-card { transition: transform 0.2s ease, box-shadow 0.25s ease, border-color 0.25s ease; }
-    .japanese-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(139, 115, 85, 0.16); border-color: rgba(197, 112, 93, 0.35); }
-    .japanese-card:active { transform: translateY(0) scale(0.98); box-shadow: 0 4px 16px rgba(139, 115, 85, 0.14); }
+      .japanese-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(47, 93, 80, 0.16); border-color: rgba(47, 93, 80, 0.35); }
+      .japanese-card:active { transform: translateY(0) scale(0.98); box-shadow: 0 4px 16px rgba(47, 93, 80, 0.14); }
 
     /* 路线呼吸光晕 */
     .route-breathing { animation: glowPulse 3s ease-in-out infinite; }

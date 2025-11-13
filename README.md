@@ -1,6 +1,6 @@
-# 日本十大经典徒步路线地图
+# 日本徒步路线地图（Hiking Japan）
 
-一个基于Web的互动地图应用，展示日本最美的十条经典徒步路线。使用Leaflet地图库和现代化的响应式设计，为徒步爱好者提供直观的路线信息和交互体验。
+一个基于 Web 的互动地图应用，展示日本经典徒步路线。使用 Leaflet 地图库与 Tailwind CSS，提供直观的路线信息、筛选与交互体验。
 
 ## 🗾 项目特色
 
@@ -8,8 +8,9 @@
 - **路线详情**：每条路线包含详细信息（难度、地区、最佳季节等）
 - **视觉化展示**：不同难度等级使用颜色编码（绿色-简单，橙色-中等，红色-困难）
 - **响应式设计**：完美适配桌面端、平板和移动设备
-- **多重备份**：3个地图图层源，自动切换确保稳定性
-- **加载优化**：智能加载状态指示和错误处理机制
+- **多重备份**：3 个地图图层源，自动切换确保稳定性
+- **加载优化**：智能加载状态指示与错误处理机制
+- **季节精选轮播**：引入 Embla Carousel，并支持“连续缓慢滚动”的 Ticker 模式
 
 ## 🏔️ 包含的徒步路线
 
@@ -27,11 +28,11 @@
 ## 🛠️ 技术栈
 
 - **前端框架**：原生HTML5 + CSS3 + JavaScript (ES6+)
-- **UI框架**：Tailwind CSS
+- **UI 框架**：Tailwind CSS
 - **地图引擎**：Leaflet.js
 - **图标库**：Font Awesome
 - **构建工具**：无需构建，纯静态文件
-- **部署平台**：GitHub Pages
+- **部署平台**：GitHub Pages / Vercel
 
 ## 🚀 快速开始
 
@@ -39,21 +40,21 @@
 
 1. **克隆仓库**
    ```bash
-   git clone https://github.com/your-username/japan-hiking-routes.git
-   cd japan-hiking-routes
+   git clone https://github.com/aramisjiang-wq/Hiking-Japan.git
+   cd Hiking-Japan
    ```
 
 2. **本地运行**
    ```bash
    # 使用Python HTTP服务器
-   python3 -m http.server 8000
+   python3 -m http.server 8010
    
    # 或使用Node.js http-server
    npx http-server -p 8000
    ```
 
 3. **访问应用**
-   打开浏览器访问 `http://localhost:8000`
+   打开浏览器访问 `http://localhost:8010`
 
 ### 直接部署
 
@@ -84,15 +85,19 @@
 
 ## 🎨 设计亮点
 
-### 颜色方案
-- **主色调**：自然绿 (#2E7D32) - 体现户外徒步主题
-- **辅助色**：木色调 (#8D6E63) - 温暖的自然感
-- **强调色**：橙色 (#FF8F00) - 活力与冒险
-- **背景色**：浅绿色 (#F1F8E9) - 舒适的视觉体验
+### 颜色方案（山林雾绿）
+- **背景**：`#F7F9F6`（轻雾绿）
+- **表层**：`#FFFFFF`
+- **主色**：`#2F5D50`（常青深绿）
+- **强调**：`#86A38A`（苔绿）
+- **正文**：`#243026`
+- **次级文本**：`#5B6A5F`
+- **分割/边框**：`#DDE4DC`
+- **阴影着色**：`rgba(47,93,80,0.10)`
 
 ### 交互设计
 - **智能加载**：显示加载动画和错误提示
-- **图层备份**：3个地图源自动切换
+- **图层备份**：3 个地图源自动切换
 - **标记优化**：扩大版图标，提高可读性
 - **弹出窗口**：详细信息展示，响应式宽度
 
@@ -168,9 +173,19 @@ const hikingRoutes = [
 
 ## 📞 联系方式
 
-- 项目维护者：[您的姓名]
-- 邮箱：[your.email@example.com]
-- 项目主页：https://github.com/your-username/japan-hiking-routes
+- 项目维护者：Aramis Jiang
+- 项目主页：https://github.com/aramisjiang-wq/Hiking-Japan
+
+## 🆕 更新摘要（近期改动）
+
+- 引入 Embla Carousel 并实现“连续缓慢滚动”季节精选路线展示（Ticker 模式），支持悬停/交互/页面不可见暂停与手动控制。
+- 全站配色切换为“山林雾绿”（Forest Mist Green），统一主色、强调色、边框与阴影色，提升可读性与沉浸感。
+- 优化关键词高亮为浅绿背景 + 深绿文字，增强检索与筛选的视觉反馈。
+
+## 📦 部署与预览
+
+- 本地预览：`python3 -m http.server 8010` → 打开 `http://localhost:8010/`
+- 推荐部署：GitHub Pages / Vercel（静态站点即可）
 
 ---
 
