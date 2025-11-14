@@ -82,6 +82,20 @@
       .content-auto {
         content-visibility: auto;
       }
+      /* 模块卡片统一样式（白色表层 + 分割线 + 轻阴影） */
+      .module-card {
+        background: #FFFFFF;
+        border: 1px solid #DDE4DC;
+        border-radius: 8px;
+        box-shadow: 0 6px 18px rgba(47,93,80,0.12);
+      }
+      .module-card.map-elevated {
+        box-shadow: 0 10px 24px rgba(47,93,80,0.15);
+        border-color: #DDE4DC;
+      }
+      .module-card .module-header {
+        border-bottom: 1px solid rgba(221,228,220,0.9);
+      }
       /* 日式风格全局样式 */
       body {
         font-family: 'Noto Sans JP', 'Noto Sans SC', sans-serif;
@@ -528,6 +542,30 @@
       }
     }
   </style>
+  <!-- 增强动效样式块 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      /* 轮播卡片磁吸跟随（JS 写入 transform） */
+      .magnet-card { will-change: transform; transition: transform 200ms ease-out; transform: translate3d(0,0,0); }
+      /* 路线选中呼吸高亮 */
+      @keyframes routeBreathe { 0%,100% { stroke-opacity: 0.85; } 50% { stroke-opacity: 1; } }
+      @keyframes highlightPulse { 0%,100% { stroke-opacity: 0.28; } 50% { stroke-opacity: 0.45; } }
+      .route-breathing { animation: routeBreathe 2.5s ease-in-out infinite; }
+      .route-highlight { animation: highlightPulse 2.5s ease-in-out infinite; }
+      .no-breathe { animation: none !important; }
+      /* 地图标记闲置微风 */
+      .marker-breeze { transition: transform 480ms ease-out; transform: translate3d(var(--idle-x, 0px), var(--idle-y, 0px), 0); }
+      .marker-breeze:hover, .marker-breeze:active { transform: translate3d(0,0,0); }
+      /* 季节选择条轻 Sticky */
+      #seasonSwitchCard { position: sticky; top: 12px; z-index: 40; }
+      @media (max-width: 768px) { #seasonSwitchCard { top: 8px; } }
+      /* 无障碍降级 */
+      @media (prefers-reduced-motion: reduce) {
+        .magnet-card, .marker-breeze, .route-breathing, .route-highlight { animation: none !important; transition: none !important; }
+        .magnet-card { transform: none !important; }
+      }
+    }
+  </style>
 </head>
 <body class="bg-light text-gray-800">
   <!-- 页面头部 - 摄影版：鞍马·木桥山径（盒装） -->
@@ -559,20 +597,22 @@
   
   <!-- 季节精选路线 · 走马灯模块 -->
   <section id="seasonCarouselSection" class="mx-auto max-w-[1536px] px-4 mt-8" aria-label="季节精选路线">
-    <div class="flex items-center justify-between mb-3">
-      <h2 class="text-xl font-semibold text-primary">季节精选路线</h2>
-      <div class="text-xs text-sabi-gray">轻滑浏览每季代表路线</div>
-    </div>
-    <div id="emblaSeason" class="embla">
-      <div class="embla__viewport">
-        <div id="emblaSeasonContainer" class="embla__container">
-          <!-- Slides 将由脚本基于 hikingRoutes 动态注入 -->
-        </div>
+    <div class="module-card p-4 md:p-6">
+      <div class="flex items-center justify-between mb-3 module-header pb-3">
+        <h2 class="text-xl font-semibold text-primary">季节精选路线</h2>
+        <div class="text-xs text-sabi-gray">轻滑浏览每季代表路线</div>
       </div>
-      <div class="embla__nav">
-        <button id="emblaPrev" class="embla__button japanese-button text-sm" aria-label="上一张"><i class="fa fa-chevron-left mr-1"></i> 上一张</button>
-        <button id="emblaToggleAutoplay" class="embla__button japanese-button text-sm" aria-label="暂停自动播放">暂停</button>
-        <button id="emblaNext" class="embla__button japanese-button text-sm" aria-label="下一张">下一张 <i class="fa fa-chevron-right ml-1"></i></button>
+      <div id="emblaSeason" class="embla">
+        <div class="embla__viewport">
+          <div id="emblaSeasonContainer" class="embla__container">
+            <!-- Slides 将由脚本基于 hikingRoutes 动态注入 -->
+          </div>
+        </div>
+        <div class="embla__nav">
+          <button id="emblaPrev" class="embla__button japanese-button text-sm" aria-label="上一张"><i class="fa fa-chevron-left mr-1"></i> 上一张</button>
+          <button id="emblaToggleAutoplay" class="embla__button japanese-button text-sm" aria-label="暂停自动播放">暂停</button>
+          <button id="emblaNext" class="embla__button japanese-button text-sm" aria-label="下一张">下一张 <i class="fa fa-chevron-right ml-1"></i></button>
+        </div>
       </div>
     </div>
   </section>
@@ -657,7 +697,8 @@
     </div>
     
     <!-- 地图容器 -->
-    <div id="map" class="w-full map-container rounded-lg shadow-lg border border-gray-200">
+    <div class="module-card map-elevated my-8 overflow-hidden">
+      <div id="map" class="w-full map-container rounded-lg border border-wabi-beige/50">
       <!-- 地图加载指示器 -->
       <div id="mapLoading" class="map-loading">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
@@ -672,10 +713,11 @@
           重新加载地图
         </button>
       </div>
+      </div>
     </div>
     
     <!-- 路线列表 - 日式风格 -->
-    <div class="mt-12 japanese-card p-6">
+    <div class="mt-12 japanese-card bg-white border border-wabi-beige/30 rounded-lg shadow-[0_6px_18px_rgba(47,93,80,0.12)] p-6">
       <h2 class="text-2xl font-japanese font-medium mb-6 text-primary border-b border-primary/20 pb-4">
         <i class="fa fa-list-ul mr-3 text-accent"></i>山径列表
       </h2>
@@ -1255,6 +1297,43 @@
     // 页面加载完成后初始化季节轮播
     document.addEventListener('DOMContentLoaded', function() {
       initSeasonEmbla();
+    });
+
+    // 增强动效初始化
+    function initMotion() {
+      const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      // 轮播卡片磁吸跟随（桌面优先）
+      if (!reduce && window.matchMedia('(pointer: fine)').matches) {
+        const cards = document.querySelectorAll('#emblaSeasonContainer .embla__slide .japanese-card');
+        cards.forEach(card => {
+          card.classList.add('magnet-card');
+          let rafId = null;
+          let targetX = 0, targetY = 0;
+          const max = 8;
+          const onMove = (ev) => {
+            const rect = card.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + rect.height / 2;
+            const dx = Math.max(-max, Math.min(max, (ev.clientX - cx) / 16));
+            const dy = Math.max(-max, Math.min(max, (ev.clientY - cy) / 16));
+            targetX = dx; targetY = dy;
+            if (!rafId) {
+              rafId = requestAnimationFrame(() => {
+                card.style.transform = `translate3d(${targetX}px, ${targetY}px, 0)`;
+                rafId = null;
+              });
+            }
+          };
+          const onLeave = () => { card.style.transform = 'translate3d(0,0,0)'; };
+          card.addEventListener('pointermove', onMove);
+          card.addEventListener('pointerleave', onLeave);
+          card.addEventListener('pointercancel', onLeave);
+        });
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      initMotion();
     });
 
     // 初始化地图函数
@@ -2206,7 +2285,11 @@
               weight: 8,
               opacity: 1
             });
-            this.getElement().style.cursor = 'pointer';
+            const el = this.getElement();
+            if (el) {
+              el.style.cursor = 'pointer';
+              el.classList.add('no-breathe');
+            }
           });
           
           currentRouteLayer.on('mouseout', function(e) {
@@ -2214,6 +2297,10 @@
               weight: 6,
               opacity: 0.9
             });
+            const el = this.getElement();
+            if (el) {
+              el.classList.remove('no-breathe');
+            }
           });
           
           // 存储所有图层以便后续清除
@@ -2312,6 +2399,41 @@
         });
         
         window.markers.push(marker);
+      });
+
+      // 启用标记的闲置微风效果
+      applyMarkerIdleBreeze();
+    }
+
+    // 为地图标记添加闲置微风效果（尊重无障碍设置）
+    function applyMarkerIdleBreeze() {
+      const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce || !window.markers || !Array.isArray(window.markers)) return;
+      window.markers.forEach(marker => {
+        const el = marker._icon;
+        if (!el) return;
+        el.classList.add('marker-breeze');
+        let pausedUntil = 0;
+        const pauseMs = 6000;
+        const tick = () => {
+          const now = Date.now();
+          if (now < pausedUntil) return;
+          const dx = (Math.random() * 2 - 1) * 2;
+          const dy = (Math.random() * 2 - 1) * 2;
+          el.style.setProperty('--idle-x', `${dx.toFixed(1)}px`);
+          el.style.setProperty('--idle-y', `${dy.toFixed(1)}px`);
+        };
+        const reset = () => {
+          pausedUntil = Date.now() + pauseMs;
+          el.style.setProperty('--idle-x', '0px');
+          el.style.setProperty('--idle-y', '0px');
+        };
+        el.addEventListener('mouseenter', reset);
+        el.addEventListener('mousedown', reset);
+        el.addEventListener('touchstart', reset, { passive: true });
+        if (!el._idleInterval) {
+          el._idleInterval = setInterval(tick, 11000);
+        }
       });
     }
 
